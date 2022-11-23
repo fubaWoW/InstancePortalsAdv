@@ -126,7 +126,6 @@ function IPAInstancePortalProviderPinMixin:OnClick(button)
 	
   if self.hub == 0 then
     if (button == "LeftButton" and IsShiftKeyDown() and useWaypoints == true) then
-			if IsControlKeyDown() then useTomTom = false end
       local uiMapID = self:GetMap():GetMapID();
 			if Debug and Debug == true then print("uiMapID: "..uiMapID) end
       if not uiMapID then return end			
@@ -174,6 +173,7 @@ function IPAInstancePortalProviderPinMixin:OnClick(button)
 
 	-- check for all needed Variables and Add Waypoint if all Variables are present
   if (button == "LeftButton" and IsShiftKeyDown() and useWaypoints == true) and wp_mapid and wp_x and wp_y and wp_name then
+		if IsControlKeyDown() then useTomTom = false end
     AddWaypoint(wp_mapid, wp_x, wp_y, wp_name, useTomTom)
   end
 end
@@ -187,7 +187,6 @@ local function WaypointDungeonEntrancePinMixin(self, button)
 	useTomTom = useTomTom and (TomTom ~= nil) or false
 
 	if (button == "LeftButton" and IsShiftKeyDown() and useWaypoints == true) then
-		if IsControlKeyDown() then useTomTom = false end
 		local uiMapID = self:GetMap():GetMapID();
 		local journalInstanceID = self.journalInstanceID		
 		
@@ -213,6 +212,7 @@ local function WaypointDungeonEntrancePinMixin(self, button)
 	end
 	
 	if (button == "LeftButton" and IsShiftKeyDown() and useWaypoints == true) and wp_mapid and wp_x and wp_y and wp_name then
+		if IsControlKeyDown() then useTomTom = false end
 		AddWaypoint(wp_mapid, wp_x, wp_y, wp_name, useTomTom)
 	end
 end
