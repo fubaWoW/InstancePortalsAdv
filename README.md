@@ -7,4 +7,5 @@ The Waypoint Feature supports TomTom and will Fallback to the Original Blizzard 
 You can also "force" to use the Original Blizzard Waypoint System by ***CTRL + SHIFT + LeftClick*** an Instance Portal Pin if you need it.
 
 Preview of Dragon Isles:
-![image](https://user-images.githubusercontent.com/41425685/203467680-9147ea4f-93bb-4123-a653-76d33b3a7408.png)
+![image](https://user-images.githubusercontent.com/41425685/203467824-01b7e5f3-71ed-41af-b25c-e8080a1c06d6.png)
+
