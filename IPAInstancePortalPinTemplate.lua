@@ -177,3 +177,43 @@ function IPAInstancePortalProviderPinMixin:OnClick(button)
     AddWaypoint(wp_mapid, wp_x, wp_y, wp_name, useTomTom)
   end
 end
+
+
+-- Waypoint Function for Blizzard Dungeon Entrance Pins
+local function WaypointDungeonEntrancePinMixin(self, button)
+	local useWaypoints = true
+	local useTomTom = true
+	local wp_mapid, wp_x, wp_y, wp_name
+	useTomTom = useTomTom and (TomTom ~= nil) or false
+
+	if (button == "LeftButton" and IsShiftKeyDown() and useWaypoints == true) then
+		if IsControlKeyDown() then useTomTom = false end
+		local uiMapID = self:GetMap():GetMapID();
+		local journalInstanceID = self.journalInstanceID		
+		
+		local dungeonEntrances = C_EncounterJournal.GetDungeonEntrancesForMap(uiMapID);
+		for i, dungeonEntranceInfo in ipairs(dungeonEntrances) do
+			if dungeonEntranceInfo.journalInstanceID == journalInstanceID then
+				wp_mapid = uiMapID
+				wp_x = dungeonEntranceInfo.position.x
+				wp_y = dungeonEntranceInfo.position.y
+				wp_name = dungeonEntranceInfo.name or "Waypoint"
+			end
+		end
+		
+		-- if no "dungeonEntranceInfo" is found, use Pin itself as Source
+		if (not wp_mapid) then
+			wp_mapid = self:GetMap():GetMapID();
+			wp_x, wp_y = self:GetPosition()
+			wp_name = self.name or "Waypoint"
+		end
+	else -- if not
+		EncounterJournal_LoadUI();
+		EncounterJournal_OpenJournal(nil, self.journalInstanceID);
+	end
+	
+	if (button == "LeftButton" and IsShiftKeyDown() and useWaypoints == true) and wp_mapid and wp_x and wp_y and wp_name then
+		AddWaypoint(wp_mapid, wp_x, wp_y, wp_name, useTomTom)
+	end
+end
+_G.DungeonEntrancePinMixin.OnMouseClickAction = WaypointDungeonEntrancePinMixin
