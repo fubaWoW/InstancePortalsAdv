@@ -39,6 +39,7 @@ function IPAUIDropDownInit(_, _, dropDownFrame, _, _, _, _, clickedButton)
 		end
 
 		SetCVar(button.value, button.checked and "1" or "0", "INSTANCE_PORTAL_REFRESH");
+		WorldMapFrame:RefreshAllDataProviders()
 	end
 
 	if dropDownFrame == trackingOptionsMenu then
