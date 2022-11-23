@@ -1,0 +1,12 @@
+## Interface: 100002
+## Version: 1.0
+## Author: fuba
+## Title: Instance Portals |cff0080ffAdvanced|r
+## Notes: Displays Dungeon & Raid Portals on the Worldmap|nThis is an Advanced Version of "Instance Portals" by StevenTroughtonSmith but with more Features and more Accurate!
+## SavedVariablesPerCharacter: IPAUITrackInstancePortals IPAUITrackInstancePortalsOnContinents
+
+IPAPinDB.lua
+IPAInstanceDB.lua
+IPAInstancePortalPinTemplate.xml
+IPACore.lua
+InstancePortalsAdv.xml
