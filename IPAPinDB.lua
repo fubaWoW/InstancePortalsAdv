@@ -501,11 +501,12 @@ IPAUIPinDB = {
 	[790]={ --[[ Eye of Azshara ]]--
 	},
 
-	[905]={ --[[ Argus ]]--
-		{52, 33, {945}}, --Seat of the Triumvirate
-		{35, 64, {946}}, --Antorus, the Burning Throne
+	[905]={
+		-- Antoran Wastes
+		{22.51, 81.39, {946}}, -- Antorus, the Burning Throne
+		-- Eredath
+		{31.67, 36.24, {945}}, -- Seat of the Triumvirate
 	},
-
 
 
 	[875]={ --[[ Zandalar ]]--
@@ -639,21 +640,17 @@ IPAUIPinDB = {
 	},
 	 
 	[1978]={ --[[ Dragon Isles  ]]--
-		-- The Walking Shore
-		{42.143745018467, 35.674487808132, {1199}}, -- Neltharus
-		{52.909352674978, 41.753505978421, {1202}}, -- Ruby Life Pools
-
-		-- Taldraszus
-		{63.281882669086, 41.734546447436, {1201}}, -- Algeth'ar Academy
-		{63.654679188667, 48.978011127175, {1204}}, -- Halls of Infusion
-		{69.870329020185, 46.807002765369, {1200}}, -- Vault of the Incarnates (Raid)
-
-		-- The Azure Span		
-		{47.421586086518, 82.733546450360, {1203}}, -- The Azure Vault
-		{35.719918658531, 76.005899033001, {1196}}, -- Brackenhide Hollow
-
+		-- The Azure Span
+		{47.421587, 82.733548, {1203}}, -- The Azure Vault
+		{35.719919, 76.005900, {1196}}, -- Brackenhide Hollow
 		-- Ohn'ahran Plains
-		{43.678347131592, 52.886746779309, {1198}}, -- The Nokhud Offensive
-		
+		{43.678343, 52.886748, {1198}}, -- The Nokhud Offensive
+		-- The Waking Shores
+		{42.143744, 35.674489, {1199}}, -- Neltharus
+		{52.909350, 41.753507, {1202}}, -- Ruby Life Pools
+		-- Thaldraszus
+		{69.870329, 46.807003, {1200}}, -- Vault of the Incarnates
+		{63.654679, 48.978007, {1204}}, -- Halls of Infusion
+		{63.281882, 41.734546, {1201}}, -- Algeth'ar Academy
 	}
 }
