@@ -1,9 +1,11 @@
 ## Interface: 100002
-## Version: 1.0
+## Version: @project-version@
 ## Author: fuba
 ## Title: Instance Portals |cff0080ffAdvanced|r
 ## Notes: Displays Dungeon & Raid Portals on the Worldmap|n|nThis is an Advanced Version of "Instance Portals" by StevenTroughtonSmith but with more Features and way more Accurate Dungeon & Raid Entrance Pins!
 ## SavedVariablesPerCharacter: IPAUITrackInstancePortals IPAUITrackInstancePortalsOnContinents
+
+## X-Curse-Project-ID: 721768
 
 IPAPinDB.lua
 IPAInstanceDB.lua
