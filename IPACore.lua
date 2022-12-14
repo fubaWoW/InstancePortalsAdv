@@ -232,7 +232,7 @@ _G.SLASH_IPASETTINGS1 = '/ipa'
 _G.SLASH_IPASETTINGS2 = '/ipadv'
 SlashCmdList.IPASETTINGS = function(msg)
   if not msg or type(msg) ~= "string" or msg == "" or msg == "help" then
-    print("|cffff8000\nInstane Portals Advanced Usage:\n|r==========================================================\n|cffff8000/ipa|r or |cffff8000/ipa help|r - Show this message\n|cffff8000/ipa waypoints|r - Toggle \"Waypoint Feature\"\n|cffff8000/ipa tomtom|r - Toggle \"Use TomTom as Waypoint\"\n|cffff8000/ipa zone|r - Toggle \"Dungeon Entraces on Zone Map\"\n|cffff8000/ipa cont|r - Toggle \"Dungeon Entraces on Continent Map\"\n|r==========================================================")
+    print("|cffff8000\nInstane Portals Advanced Usage:\n|r==========================================================\n|cffff8000/ipa|r or |cffff8000/ipa help|r - Show this message\n|cffff8000/ipa waypoints|r - Toggle \"Waypoint Feature\"\n|cffff8000/ipa tomtom|r - Toggle \"Use TomTom as Waypoint System\"\n|cffff8000/ipa zone|r - Toggle \"Dungeon Entraces on Zone Map\"\n|cffff8000/ipa cont|r - Toggle \"Dungeon Entraces on Continent Map\"\n|r==========================================================")
     return
   end
   local cmd, arg = strsplit(" ", msg:trim():lower()) -- Try splitting by space
