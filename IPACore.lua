@@ -257,21 +257,21 @@ SlashCmdList.IPASETTINGS = function(msg)
 		if GetCVar("showDungeonEntrancesOnMap") == "1" then
 			SetCVar("showDungeonEntrancesOnMap", "0")
 			WorldMapFrame:RefreshAllDataProviders()
-			print("|cffff8000[Instance Portal Advanced]|r Show Entraces on Zone Map: |cffFF0000Disabled|r")
+			print("|cffff8000[Instance Portal Advanced]|r Show Entrances on Zone Map: |cffFF0000Disabled|r")
 		else
 			SetCVar("showDungeonEntrancesOnMap", "1")
 			WorldMapFrame:RefreshAllDataProviders()
-			print("|cffff8000[Instance Portal Advanced]|r Show Entraces on Zone Map: |cff00FF00Enabled|r")
+			print("|cffff8000[Instance Portal Advanced]|r Show Entrances on Zone Map: |cff00FF00Enabled|r")
 		end
 	elseif cmd == "continent" or cmd == "cont" then
 		if IPAUITrackInstancePortalsOnContinents == true then
 			IPAUITrackInstancePortalsOnContinents = false
 			WorldMapFrame:RefreshAllDataProviders()
-			print("|cffff8000[Instance Portal Advanced]|r Show Entraces on Continent Map: |cffFF0000Disabled|r")
+			print("|cffff8000[Instance Portal Advanced]|r Show Entrances on Continent Map: |cffFF0000Disabled|r")
 		else
 			IPAUITrackInstancePortalsOnContinents = true
 			WorldMapFrame:RefreshAllDataProviders()
-			print("|cffff8000[Instance Portal Advanced]|r Show Entraces on Continent Map: |cff00FF00Enabled|r")
+			print("|cffff8000[Instance Portal Advanced]|r Show Entrances on Continent Map: |cff00FF00Enabled|r")
 		end
 
   elseif cmd == "debug" then
