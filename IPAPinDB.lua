@@ -4,25 +4,25 @@ IPAUIPinDB = {
 
 	[12]={ --[[ KALIMDOR ]]--
 		-- accuracy updated by fuba
-		{59.334832, 83.454406, {251,255,279,185,186,184,750,187}, "Caverns of Time"}, -- Caverns of ime	
-		
+		{59.334832, 83.454406, {251,255,279,185,186,184,750,187}, "Caverns of Time"}, -- Caverns of ime
+
 		{58.366149, 42.790913, {226}}, -- Ragefire Chasm
-		{52.150148, 53.519964, {240}}, -- Wailing Caverns 
-		{54.301107, 33.964998, {78}}, -- Firelands 
-		{51.370823, 91.793716, {70}}, -- Halls of Origination 
-		{49.928331, 93.700117, {69}}, -- Lost City of the Tol'vir 
-		{52.651453, 97.099590, {68}}, -- The Vortex Pinnacle 
-		{49.029613, 90.299171, {1180}}, -- Ny'alotha, the Waking City 
-		{42.288864, 84.485090, {743}}, -- Ruins of Ahn'Qiraj 
-		{40.952015, 83.741444, {744}}, -- Temple of Ahn'Qiraj 
-		{45.970976, 96.607947, {74}}, -- Throne of the Four Winds 
-		{53.143901, 69.132304, {233}}, -- Razorfen Downs 
-		{50.905335, 68.369913, {234}}, -- Razorfen Kraul 
-		{42.830366, 67.436111, {230}}, -- Dire Maul 
-		{56.475580, 69.295347, {760}}, -- Onyxia's Lair 
-		{43.977249, 33.290136, {227}}, -- Blackfathom Deeps 
-		{54.286242, 78.018594, {241}}, -- Zul'Farrak 
-		{38.443625, 55.972254, {232}}, -- Maraudon 
+		{52.150148, 53.519964, {240}}, -- Wailing Caverns
+		{54.301107, 33.964998, {78}}, -- Firelands
+		{51.370823, 91.793716, {70}}, -- Halls of Origination
+		{49.928331, 93.700117, {69}}, -- Lost City of the Tol'vir
+		{52.651453, 97.099590, {68}}, -- The Vortex Pinnacle
+		{49.029613, 90.299171, {1180}}, -- Ny'alotha, the Waking City
+		{42.288864, 84.485090, {743}}, -- Ruins of Ahn'Qiraj
+		{40.952015, 83.741444, {744}}, -- Temple of Ahn'Qiraj
+		{45.970976, 96.607947, {74}}, -- Throne of the Four Winds
+		{53.143901, 69.132304, {233}}, -- Razorfen Downs
+		{50.905335, 68.369913, {234}}, -- Razorfen Kraul
+		{42.830366, 67.436111, {230}}, -- Dire Maul
+		{56.475580, 69.295347, {760}}, -- Onyxia's Lair
+		{43.977249, 33.290136, {227}}, -- Blackfathom Deeps
+		{54.286242, 78.018594, {241}}, -- Zul'Farrak
+		{38.443625, 55.972254, {232}}, -- Maraudon
 
 	},
 
@@ -30,24 +30,24 @@ IPAUIPinDB = {
 		-- accuracy updated by fuba
 		{46.565998, 30.408025, {316, 311}}, -- Scarlet Monastery & Scarlet Halls
 		{47.533423, 68.936825, {228,229,66,559,742,741,73}, "Blackrock Mountain"}, --blackrock mountain
-		
-		{42.557746, 73.508930, {238}}, -- The Stockade 
-		{58.319151, 24.770936, {77}}, -- Zul'Aman 
-		{55.341327, 3.754913, {752}}, -- Sunwell Plateau 
-		{56.705868, 2.539425, {249}}, -- Magisters' Terrace 
-		{31.329137, 61.764145, {65}}, -- Throne of the Tides 
-		{47.579545, 85.058224, {76}}, -- Zul'Gurub 
-		{49.532115, 82.105708, {745}}, -- Karazhan 
-		{40.855193, 81.943280, {63}}, -- The Deadmines 
-		{52.440280, 63.592976, {239}}, -- Uldaman 
-		{53.071213, 56.113398, {71}}, -- Grim Batol 
-		{54.997647, 59.190130, {72}}, -- Bastion of Twilight 
-		{35.187650, 51.994443, {75}}, -- Baradin Hold 
-		{40.766543, 42.028379, {64}}, -- Shadowfang Keep 
-		{50.946778, 36.533028, {246}}, -- Scholomance 
-		{52.897459, 28.662109, {236}}, -- Stratholme 
-		{43.131673, 60.258794, {231}}, -- Gnomeregan 
-		{54.001498, 79.585975, {237}}, -- The Temple of Atal'hakkar 
+
+		{42.557746, 73.508930, {238}}, -- The Stockade
+		{58.319151, 24.770936, {77}}, -- Zul'Aman
+		{55.341327, 3.754913, {752}}, -- Sunwell Plateau
+		{56.705868, 2.539425, {249}}, -- Magisters' Terrace
+		{31.329137, 61.764145, {65}}, -- Throne of the Tides
+		{47.579545, 85.058224, {76}}, -- Zul'Gurub
+		{49.532115, 82.105708, {745}}, -- Karazhan
+		{40.855193, 81.943280, {63}}, -- The Deadmines
+		{52.440280, 63.592976, {239}}, -- Uldaman
+		{53.071213, 56.113398, {71}}, -- Grim Batol
+		{54.997647, 59.190130, {72}}, -- Bastion of Twilight
+		{35.187650, 51.994443, {75}}, -- Baradin Hold
+		{40.766543, 42.028379, {64}}, -- Shadowfang Keep
+		{50.946778, 36.533028, {246}}, -- Scholomance
+		{52.897459, 28.662109, {236}}, -- Stratholme
+		{43.131673, 60.258794, {231}}, -- Gnomeregan
+		{54.001498, 79.585975, {237}}, -- The Temple of Atal'hakkar
 
 	},
 
@@ -161,27 +161,27 @@ IPAUIPinDB = {
 	[101]={ --[[ OUTLAND ]]--
 		{56.864411, 53.081107, {248,256,259,747}, "Hellfire Citadel"}, -- hellfire ramparts, blood furnace, shattered halls, magtheridons lair
 		{35.100651, 43.017900, {260,262,261,748}, "Coilfang Reservoir"}, --slave pens, underbog, steamvault, serpentshrine cavern
-	
-		{66.755688, 21.568245, {254}}, -- The Arcatraz 
-		{65.531957, 25.364953, {258}}, -- The Mechanar 
-		{65.902364, 20.709950, {257}}, -- The Botanica 
-		{66.509819, 23.475188, {749}}, -- The Eye 
-		{45.217413, 19.633377, {746}}, -- Gruul's Lair 
-		{46.112078, 76.546884, {250}}, -- Mana-Tombs 
-		{44.576973, 78.875500, {247}}, -- Auchenai Crypts 
-		{46.107042, 81.220865, {253}}, -- Shadow Labyrinth 
-		{72.598433, 81.309861, {751}}, -- Black Temple 
-		{47.644269, 78.878593, {252}}, -- Sethekk Halls 
-		
-		--{56.907701, 52.634275, {259}}, -- The Shattered Halls 		
-		--{56.864411, 53.081107, {248}}, -- Hellfire Ramparts 
-		--{56.302017, 52.597624, {256}}, -- The Blood Furnace 
-		--{56.467259, 52.905875, {747}}, -- Magtheridon's Lair 
-		
-		--{34.252650, 43.720645, {260}}, -- The Slave Pens 
-		--{35.754776, 43.290305, {262}}, -- The Underbog 
-		--{34.688902, 42.974162, {261}}, -- The Steamvault 
-		--{35.100651, 43.017900, {748}}, -- Serpentshrine Cavern 
+
+		{66.755688, 21.568245, {254}}, -- The Arcatraz
+		{65.531957, 25.364953, {258}}, -- The Mechanar
+		{65.902364, 20.709950, {257}}, -- The Botanica
+		{66.509819, 23.475188, {749}}, -- The Eye
+		{45.217413, 19.633377, {746}}, -- Gruul's Lair
+		{46.112078, 76.546884, {250}}, -- Mana-Tombs
+		{44.576973, 78.875500, {247}}, -- Auchenai Crypts
+		{46.107042, 81.220865, {253}}, -- Shadow Labyrinth
+		{72.598433, 81.309861, {751}}, -- Black Temple
+		{47.644269, 78.878593, {252}}, -- Sethekk Halls
+
+		--{56.907701, 52.634275, {259}}, -- The Shattered Halls
+		--{56.864411, 53.081107, {248}}, -- Hellfire Ramparts
+		--{56.302017, 52.597624, {256}}, -- The Blood Furnace
+		--{56.467259, 52.905875, {747}}, -- Magtheridon's Lair
+
+		--{34.252650, 43.720645, {260}}, -- The Slave Pens
+		--{35.754776, 43.290305, {262}}, -- The Underbog
+		--{34.688902, 42.974162, {261}}, -- The Steamvault
+		--{35.100651, 43.017900, {748}}, -- Serpentshrine Cavern
 	},
 
 
@@ -225,39 +225,39 @@ IPAUIPinDB = {
 
 
 	[113]={ --[[ NORTHREND ]]--
-		{14.464706, 57.831287, {281,282,756}, "The Nexus"}, -- The Nexus, The Oculus , The Eye of Eternity 
+		{14.464706, 57.831287, {281,282,756}, "The Nexus"}, -- The Nexus, The Oculus , The Eye of Eternity
 		{40.305239, 59.160542, {272,271}, "Azjol-Nerub"}, --Azjol-Nerub, Ahn'kahet: The Old Kingdom
-		{50.433493, 61.013103, {755,761}, "Wyrmrest Temple"}, -- The Obsidian Sanctum, The Ruby Sanctum 
+		{50.433493, 61.013103, {755,761}, "Wyrmrest Temple"}, -- The Obsidian Sanctum, The Ruby Sanctum
 		{41.334301, 43.610418, {280,278,276}, "Icecrown Citadel (Instances)"}, --forge of souls, pit of saron, halls of reflection
-		{75.265151, 33.042300, {274}}, -- Gundrak 
-		{59.155452, 15.341455, {275}}, -- Halls of Lightning 
-		{47.613448, 20.176327, {284}}, -- Trial of the Champion 
-		{57.737643, 13.950807, {759}}, -- Ulduar 
-		{47.943360, 20.627499, {757}}, -- Trial of the Crusader 
-		{56.989229, 17.385972, {277}}, -- Halls of Stone 
-		{36.742854, 44.754410, {753}}, -- Vault of Archavon 
-		{40.833014, 42.360616, {758}}, -- Icecrown Citadel (Raid)		
-		{77.813774, 79.499596, {285}}, -- Utgarde Keep 
-		{77.602148, 78.531313, {286}}, -- Utgarde Pinnacle 
-		{62.605429, 50.409472, {273}}, -- Drak'Tharon Keep 
-		{58.568549, 59.221923, {754}}, -- Naxxramas 
+		{75.265151, 33.042300, {274}}, -- Gundrak
+		{59.155452, 15.341455, {275}}, -- Halls of Lightning
+		{47.613448, 20.176327, {284}}, -- Trial of the Champion
+		{57.737643, 13.950807, {759}}, -- Ulduar
+		{47.943360, 20.627499, {757}}, -- Trial of the Crusader
+		{56.989229, 17.385972, {277}}, -- Halls of Stone
+		{36.742854, 44.754410, {753}}, -- Vault of Archavon
+		{40.833014, 42.360616, {758}}, -- Icecrown Citadel (Raid)
+		{77.813774, 79.499596, {285}}, -- Utgarde Keep
+		{77.602148, 78.531313, {286}}, -- Utgarde Pinnacle
+		{62.605429, 50.409472, {273}}, -- Drak'Tharon Keep
+		{58.568549, 59.221923, {754}}, -- Naxxramas
 
 
 		-- Hubs
-		--{15.074217, 57.911932, {281}}, -- The Nexus 
-		--{14.464706, 57.831287, {282}}, -- The Oculus 
-		--{14.746982, 57.609475, {756}}, -- The Eye of Eternity 		
-		
-		--{50.433493, 61.013103, {755}}, -- The Obsidian Sanctum 
-		--{50.829339, 59.694761, {761}}, -- The Ruby Sanctum 
-		
-		--{41.016567, 59.422231, {271}}, -- Ahn'kahet: The Old Kingdom 
-		--{40.305239, 59.160542, {272}}, -- Azjol-Nerub 
-		
-		--{41.334301, 43.610418, {276}}, -- Halls of Reflection 
-		--{41.140878, 43.889314, {278}}, -- Pit of Saron 
-		--{41.180056, 43.282163, {280}}, -- The Forge of Souls 
-		
+		--{15.074217, 57.911932, {281}}, -- The Nexus
+		--{14.464706, 57.831287, {282}}, -- The Oculus
+		--{14.746982, 57.609475, {756}}, -- The Eye of Eternity
+
+		--{50.433493, 61.013103, {755}}, -- The Obsidian Sanctum
+		--{50.829339, 59.694761, {761}}, -- The Ruby Sanctum
+
+		--{41.016567, 59.422231, {271}}, -- Ahn'kahet: The Old Kingdom
+		--{40.305239, 59.160542, {272}}, -- Azjol-Nerub
+
+		--{41.334301, 43.610418, {276}}, -- Halls of Reflection
+		--{41.140878, 43.889314, {278}}, -- Pit of Saron
+		--{41.180056, 43.282163, {280}}, -- The Forge of Souls
+
 	},
 
 	[70]={ --[[ Dustwallow Marsh ]]--
@@ -360,7 +360,7 @@ IPAUIPinDB = {
 		{76.4, 84.16, {68}}, --vortex pinnacle
 		--[[ {36, 82.25, {74}}, --throne four winds (REMOVED IN 8.3) ]]--
 	},
-	
+
 	[1527]={ --[[ Uldum Nzoth ]]--
 		{61.6, 69.2, {69}}, --lost city tol'vir
 		{70, 52.6, {70}}, --halls of origination
@@ -369,17 +369,17 @@ IPAUIPinDB = {
 
 	[424]={ --[[ PANDARIA ]]--
 		-- accuracy updated by fuba
-		{40.029776, 29.399705, {312}}, -- Shado-Pan Monastery 
-		{23.629445, 50.682461, {324}}, -- Siege of Niuzao Temple 
-		{48.269910, 71.458638, {302}}, -- Stormstout Brewery 
-		{30.269867, 62.952209, {330}}, -- Heart of Fear 
-		{43.006974, 57.881606, {303}}, -- Gate of the Setting Sun 
-		{56.775784, 55.335325, {320}}, -- Terrace of Endless Spring 
-		{52.457952, 52.673072, {369}}, -- Siege of Orgrimmar 
-		{53.583229, 51.131046, {321}}, -- Mogu'shan Palace 
-		{24.192643, 9.327094, {362}}, -- Throne of Thunder 
-		{72.337890, 55.303389, {313}}, -- Temple of the Jade Serpent 
-		{49.266016, 26.054907, {317}}, -- Mogu'shan Vaults 
+		{40.029776, 29.399705, {312}}, -- Shado-Pan Monastery
+		{23.629445, 50.682461, {324}}, -- Siege of Niuzao Temple
+		{48.269910, 71.458638, {302}}, -- Stormstout Brewery
+		{30.269867, 62.952209, {330}}, -- Heart of Fear
+		{43.006974, 57.881606, {303}}, -- Gate of the Setting Sun
+		{56.775784, 55.335325, {320}}, -- Terrace of Endless Spring
+		{52.457952, 52.673072, {369}}, -- Siege of Orgrimmar
+		{53.583229, 51.131046, {321}}, -- Mogu'shan Palace
+		{24.192643, 9.327094, {362}}, -- Throne of Thunder
+		{72.337890, 55.303389, {313}}, -- Temple of the Jade Serpent
+		{49.266016, 26.054907, {317}}, -- Mogu'shan Vaults
 	},
 
 	[371]={ --[[ The Jade Forest ]]--
@@ -408,7 +408,7 @@ IPAUIPinDB = {
 		{15.85, 74.23, {303}},
 		--[[ {73.59, 42.04, {369}}, -- SoO (REMOVED IN 8.3) ]]--
 	},
-	
+
 	[1530]={ --[[ Vale of Eternal Blossoms Nzoth ]]--
 		{79, 35, {321}},
 		{15.85, 74.23, {303}},
@@ -425,16 +425,16 @@ IPAUIPinDB = {
 
 	[572]={ --[[ DRAENOR ]]--
 		--
-		{57.179046, 46.857738, {669}}, -- Hellfire Citadel 
-		{40.332538, 64.017260, {547}}, -- Auchindoun 
-		{53.258443, 68.833363, {537}}, -- Shadowmoon Burial Grounds 
-		{34.262162, 25.926590, {385}}, -- Bloodmaul Slag Mines 
-		{42.744762, 73.677135, {476}}, -- Skyreach 
-		{21.138650, 50.946498, {477}}, -- Highmaul 
-		{50.109494, 20.362067, {457}}, -- Blackrock Foundry 
-		{52.991092, 27.000123, {556}}, -- The Everbloom 
-		{51.401901, 21.991462, {536}}, -- Grimrail Depot 
-		{47.897261, 15.449053, {558}}, -- Iron Docks 
+		{57.179046, 46.857738, {669}}, -- Hellfire Citadel
+		{40.332538, 64.017260, {547}}, -- Auchindoun
+		{53.258443, 68.833363, {537}}, -- Shadowmoon Burial Grounds
+		{34.262162, 25.926590, {385}}, -- Bloodmaul Slag Mines
+		{42.744762, 73.677135, {476}}, -- Skyreach
+		{21.138650, 50.946498, {477}}, -- Highmaul
+		{50.109494, 20.362067, {457}}, -- Blackrock Foundry
+		{52.991092, 27.000123, {556}}, -- The Everbloom
+		{51.401901, 21.991462, {536}}, -- Grimrail Depot
+		{47.897261, 15.449053, {558}}, -- Iron Docks
 	},
 
 	[525]={ --[[ Frostfire Ridge ]]--
@@ -469,23 +469,23 @@ IPAUIPinDB = {
 
 		{90, 10, {945}}, --Seat of the Triumvirate
 		{83, 22, {946}}, --Antorus, the Burning Throne
-		
-		{47.082645, 47.276622, {786}}, -- The Nighthold 
-		{49.157399, 49.704754, {800}}, -- Court of Stars 
-		{46.328253, 48.518091, {726}}, -- The Arcway 
-		{47.326821, 28.105956, {767}}, -- Neltharion's Lair 
-		{56.687760, 61.282229, {900}}, -- Cathedral of Eternal Night 
-		{56.522393, 62.224877, {875}}, -- Tomb of Sargeras 
-		{35.123855, 29.253191, {768}}, -- The Emerald Nightmare 
-		{35.844809, 27.464533, {762}}, -- Darkheart Thicket 
-		{29.432726, 33.010352, {740}}, -- Black Rook Hold 
-		{58.983743, 30.600971, {727}}, -- Maw of Souls 
-		{34.165710, 72.176051, {707}}, -- Vault of the Wardens 
-		{38.747579, 57.827079, {716}}, -- Eye of Azshara 
-		{65.197098, 38.319182, {721}}, -- Halls of Valor 
-		{64.727789, 39.032668, {861}}, -- Trial of Valor 		
+
+		{47.082645, 47.276622, {786}}, -- The Nighthold
+		{49.157399, 49.704754, {800}}, -- Court of Stars
+		{46.328253, 48.518091, {726}}, -- The Arcway
+		{47.326821, 28.105956, {767}}, -- Neltharion's Lair
+		{56.687760, 61.282229, {900}}, -- Cathedral of Eternal Night
+		{56.522393, 62.224877, {875}}, -- Tomb of Sargeras
+		{35.123855, 29.253191, {768}}, -- The Emerald Nightmare
+		{35.844809, 27.464533, {762}}, -- Darkheart Thicket
+		{29.432726, 33.010352, {740}}, -- Black Rook Hold
+		{58.983743, 30.600971, {727}}, -- Maw of Souls
+		{34.165710, 72.176051, {707}}, -- Vault of the Wardens
+		{38.747579, 57.827079, {716}}, -- Eye of Azshara
+		{65.197098, 38.319182, {721}}, -- Halls of Valor
+		{64.727789, 39.032668, {861}}, -- Trial of Valor
 	},
-	
+
 	[630]={ --[[ Azsuna ]]--
 	},
 	[634]={ --[[ Stormheim ]]--
@@ -517,9 +517,9 @@ IPAUIPinDB = {
 		{40.801734, 14.818758, {1030}, "FactionSpecific"}, --Temple of Sethraliss
 		{58.347869, 35.865015, {1022}, "FactionSpecific"}, --The Underrot
 		{59.458768, 35.239428, {1031}}, --Uldir
-		
+
 		{55.687213, 53.126276, {1176}, "Horde"}, --Battle of Dazar'alor
-		
+
 		{86.11, 11.01, {1179}}, --The Eternal Palacem
 	},
 
@@ -530,9 +530,9 @@ IPAUIPinDB = {
 		{77.641767, 62.347782, {1002}, "FactionSpecific"}, --Tol Dagor
 		{31.653005, 53.677452, {1021}, "FactionSpecific"}, --Waycrest Manor
 		{65.915036, 15.108192, {1036}, "FactionSpecific"}, --Shrine of the Storm
-		
+
 		{61.25, 52.20, {1176}, "Alliance"}, --Battle of Dazar'alor
-		
+
 		{68.211877, 23.901308, {1177}}, --Crucible of Storms
 
 		{19.875503, 27.037364, {1178}}, --Operation: Mechagon
@@ -551,7 +551,7 @@ IPAUIPinDB = {
 
 	[1165]={ --[[ Dazar'alor ]]--
 	},
-	
+
 	[1355]={ --[[ Nazjatar ]]--
 	},
 
@@ -608,37 +608,37 @@ IPAUIPinDB = {
 	[68]={  --[[ MaraudonOutside FoulsporeCavern ]]--
 		{58.15, 32.66, {232}},
 	},
- 
- 
+
+
 	[1550]={ --[[ Shadowlands ]]--
-		-- Ardenweald 
+		-- Ardenweald
 		{54.446888, 86.067420, {1188}}, -- De Other Side
 		{44.641620, 82.380521, {1184}}, -- Mists of Tirna Scithe
 
-		-- Maldraxxus 
+		-- Maldraxxus
 		{64.926732, 26.361662, {1183}}, -- Plaguefall
 		{63.286728, 23.205620, {1187}}, -- Theater of Pain
 
-		-- Bastion 
+		-- Bastion
 		{74.077868, 52.558160, {1186}}, -- Spires of Ascension
-		{68.996882, 59.912443, {1182}}, -- The Necrotic Wake 
+		{68.996882, 59.912443, {1182}}, -- The Necrotic Wake
 
-		-- Revendreth 
-		{31.328863, 52.883035, {1185}}, -- Halls of Atonement 
+		-- Revendreth
+		{31.328863, 52.883035, {1185}}, -- Halls of Atonement
 		{24.945801, 48.466653, {1189}}, -- Sanguine Depths
 		{23.900000, 51.100000, {1190}}, -- Castle Nathria
-		
+
 		-- Maw
 		{28.100000, 09.200000, {1193}}, -- Sanctum of Domination
-		
+
 		-- Tazavesh, the Veiled Market
 		{31.940000, 76.010000, {1194}}, -- Tazavesh, the Veiled Market
-		
+
 		-- Zereth Mortis
 		{89.000000, 80.000000, {1195}}, -- Sepulcher of the First Ones
-		
+
 	},
-	 
+
 	[1978]={ --[[ Dragon Isles  ]]--
 		-- The Azure Span
 		{47.421587, 82.733548, {1203}}, -- The Azure Vault

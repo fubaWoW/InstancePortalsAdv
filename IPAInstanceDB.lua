@@ -1,7 +1,7 @@
 IPAUIInstanceMapDB = {
-	
+
 	--[[ Classic Dungeons ]]--
-	
+
 	[240]={"Wailing Caverns", 1, 10, 1},
 	[226]={"Ragefire Chasm", 1, 10, 1},
 	[63]={"Deadmines", 1, 10, 1},
@@ -24,14 +24,14 @@ IPAUIInstanceMapDB = {
 	[229]={"Lower Blackrock Spire", 1, 48, 1},
 
 	--[[ Classic Raids ]]--
-	
+
 	 [742]={"Blackwing Lair", 2, 50, 1},
 	 [741]={"Molten Core", 2, 50, 1},
 	 [743]={"Ruins of Ahn'Qiraj", 2, 50, 1},
 	 [744]={"Temple of Ahn'Qiraj", 2, 50, 1},
-	
+
 	--[[ Burning Crusade Dungeons ]]--
-	
+
 	 [247]={"Auchenai Crypts", 1, 62, 2},
 	 [248]={"Hellfire Ramparts", 1, 57, 2},
 	 [249]={"Magisters' Terrace", 1, 65, 2},
@@ -48,9 +48,9 @@ IPAUIInstanceMapDB = {
 	 [260]={"The Slave Pens", 1, 59, 2},
 	 [261]={"The Steamvault", 1, 65, 2},
 	 [262]={"The Underbog", 1, 60, 2},
-	
+
 	--[[ Burning Crusade Raids ]]--
-	
+
 	 [746]={"Gruul's Lair", 2, 70, 2},
 	 [750]={"The Battle for Mount Hyjal", 2, 68, 2},
 	 [747]={"Magtheridon's Lair", 2, 70, 2},
@@ -62,7 +62,7 @@ IPAUIInstanceMapDB = {
 
 
 	--[[ Wrath Dungeons ]]--
-	
+
 	 [271]={"Ahn'kahet: The Old Kingdom", 1, 61, 3},
 	 [272]={"Azjol-Nerub", 1, 60, 3},
 	 [273]={"Drak'Tharon Keep", 1, 62, 3},
@@ -79,9 +79,9 @@ IPAUIInstanceMapDB = {
 	 [284]={"Trial of the Champion", 1, 68, 3},
 	 [285]={"Utgarde Keep", 1, 58, 3},
 	 [286]={"Utgarde Pinnacle", 1, 67, 3},
-	
+
 	--[[ Wrath Raids ]]--
-	
+
 	 [754]={"Naxxramas", 2, 80, 3},
 	 [760]={"Onyxia's Lair", 2, 80, 3},
 	 [756]={"The Eye of Eternity", 2, 80, 3},
@@ -93,7 +93,7 @@ IPAUIInstanceMapDB = {
 	 [758]={"Icecrown Citadel", 2, 80, 3},
 
 	--[[ Cataclysm Dungeons ]]--
-	
+
 	[66]={"Blackrock Caverns", 1, 80, 4},
 	[184]={"End Time", 1, 85, 4},
 	[71]={"Grim Batol", 1, 84, 4},
@@ -135,9 +135,9 @@ IPAUIInstanceMapDB = {
 	 [369]={"Siege of Orgrimmar", 2, 90, 5},
 	 [320]={"Terrace of Endless Spring", 2, 90, 5},
 	 [362]={"Throne of Thunder", 2, 90, 5},
-	
+
 	--[[ WoD ]]--
-	
+
 	[385]={"Bloodmaul Slag Mines", 1, 90, 6},
 	[537]={"Shadowmoon Burial Grounds", 1, 100, 6},
 	[558]={"Iron Docks", 1, 92, 6},
@@ -180,7 +180,7 @@ IPAUIInstanceMapDB = {
 	[1041]={"Kings' Rest", 1, 120, 8},
 
 	[1031]={"Uldir", 2, 120, 8},
-	
+
 	[1177]={"Crucible of Storms", 2, 120, 8},
 
 	[1178]={"Operation: Mechagon", 1, 120, 8},
@@ -199,25 +199,25 @@ IPAUIInstanceMapDB = {
 
 	[1185]={"Halls of Atonement", 1, 60, 9},
 	[1189]={"Sanguine Depths", 1, 60, 9},
-	
+
 	[1194]={"Tazavesh, the Veiled Market", 1, 60, 9},
 
 	[1190]={"Castle Nathria", 2, 60, 9},
 	[1193]={"Sanctum of Domination", 2, 60, 9},
 	[1195]={"Sepulcher of the First Ones", 2, 60, 9},
-	
+
 	--[[ Dragon Isles ]]--
-	
+
 	[1196]={"Brackenhide Hollow", 1, 60, 10},
 	[1198]={"The Nokhud Offensive", 1, 60, 10},
-	[1199]={"Neltharus", 1, 60, 10},	
+	[1199]={"Neltharus", 1, 60, 10},
 	[1201]={"Algeth'ar Academy", 1, 60, 10},
 	[1202]={"Ruby Life Pools", 1, 60, 10},
 	[1203]={"The Azure Vault", 1, 60, 10},
 	[1204]={"Halls of Infusion", 1, 60, 10},
-	
+
 	[1200]={"Vault of the Incarnates", 2, 60, 10},
-	
+
 }
 
 IPAUIInstanceFactionSpecificDB = {
@@ -225,7 +225,7 @@ IPAUIInstanceFactionSpecificDB = {
 		[968]={"Atal'Dazar", 1, 110, 8},
 		[1022]={"The Underrot", 1, 110, 8},
 		[1030]={"Temple of Sethraliss", 1, 110, 8},
-		
+
 		[1012]={"The MOTHERLODE!!", 1, 115, 8},
 
 		[1001]={"Freehold", 1, 120, 8},
@@ -234,12 +234,12 @@ IPAUIInstanceFactionSpecificDB = {
 		[1002]={"Tol Dagor", 1, 120, 8},
 
 		[1023]={"Siege of Boralus", 1, 120, 8},
-		
+
 		[1176]={"Battle of Dazar'alor", 2, 120, 8},
 	},
-	
+
 	["Alliance"] = {
-	
+
 		[1001]={"Freehold", 1, 110, 8},
 		[1021]={"Waycrest Manor", 1, 110, 8},
 		[1036]={"Shrine of the Storm", 1, 110, 8},
@@ -250,10 +250,10 @@ IPAUIInstanceFactionSpecificDB = {
 		[1012]={"The MOTHERLODE!!", 1, 120, 8},
 		[1022]={"The Underrot", 1, 120, 8},
 		[1030]={"Temple of Sethraliss", 1, 120, 8},
-		
+
 		[1023]={"Siege of Boralus", 1, 120, 8},
-		
+
 		[1176]={"Battle of Dazar'alor", 2, 120, 8},
 	},
-	
+
 }

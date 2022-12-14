@@ -1,3 +1,4 @@
+local addonName, addon = ...
 IPAInstancePortalMapDataProviderMixin = CreateFromMixins(MapCanvasDataProviderMixin);
 
 function IPAInstancePortalMapDataProviderMixin:RemoveAllData()
@@ -45,22 +46,22 @@ function IPAInstancePortalMapDataProviderMixin:RefreshAllData(fromOnShow)
 				isContinent = true;
 			end
 		end
-  
+
         if not (isContinent) then
             return
         end
-		
+
 		IPAUIPrintDebug("Map is continent = "..(isContinent and 'true' or 'false'))
 		local playerFaction = UnitFactionGroup("player")
 
 		for i = 1, count do
 			local entranceInfo = IPAUIGetEntranceInfoForMapID(mapID, i);
-			
+
 			if entranceInfo then
 				local factionWhitelist = entranceInfo["factionWhitelist"];
-				
+
 				local isWhitelisted = true;
-				
+
 				if factionWhitelist and not (factionWhitelist == playerFaction) then
 					isWhitelisted = false
 				end
@@ -85,20 +86,15 @@ local function AddWaypoint(mapID, x, y, title, useTomTom)
       persistent = false,
       minimap = true,
       world = true,
-      from = "InstancePortals"
+      from = addonName or "InstancePortalsAdvanced"
     })
   else -- if TomTom is not installed or useTomTom is false you the Built-In Waypoint System
     if C_Map.CanSetUserWaypointOnMap(mapID) then
       local vector = CreateVector2D(x, y)
       local mapPoint = UiMapPoint.CreateFromVector2D(mapID, vector)
       C_Map.SetUserWaypoint(mapPoint)
-      local shouldSuperTrack = not C_SuperTrack.IsSuperTrackingUserWaypoint();
-      C_SuperTrack.SetSuperTrackedUserWaypoint(shouldSuperTrack)
-      if shouldSuperTrack then
-        PlaySound(SOUNDKIT.UI_MAP_WAYPOINT_SUPER_TRACK_ON, nil, SOUNDKIT_ALLOW_DUPLICATES);
-      else
-        PlaySound(SOUNDKIT.UI_MAP_WAYPOINT_SUPER_TRACK_OFF, nil, SOUNDKIT_ALLOW_DUPLICATES);
-      end
+      C_SuperTrack.SetSuperTrackedUserWaypoint(true)
+			PlaySound(SOUNDKIT.UI_MAP_WAYPOINT_SUPER_TRACK_ON);
     end
   end
 end
@@ -116,19 +112,24 @@ function IPAInstancePortalProviderPinMixin:OnAcquired(dungeonEntranceInfo) -- ov
 end
 
 function IPAInstancePortalProviderPinMixin:OnClick(button)
-	local useWaypoints = true
-  local useTomTom = true
-  local wp_mapid, wp_x, wp_y, wp_name
-  useTomTom = useTomTom and (TomTom ~= nil) or false
+	if (not button) then return end
 
+	local useWaypoints = true
+	local useTomTom = true
+	if IPASettings and IPASettings.options then
+		useWaypoints = IPASettings.options.useWaypoints
+		useTomTom = IPASettings.options.useTomTom and (TomTom ~= nil) or false
+	end
+
+  local wp_mapid, wp_x, wp_y, wp_name
 	IPAUIPrintDebug("IPAInstancePortalProviderPinMixin:OnClick, button: "..button)
 	IPAUIPrintDebug("IPAInstancePortalProviderPinMixin:OnClick, self.hub: "..self.hub)
-	
+
   if self.hub == 0 then
     if (button == "LeftButton" and IsShiftKeyDown() and useWaypoints == true) then
       local uiMapID = self:GetMap():GetMapID();
 			if Debug and Debug == true then print("uiMapID: "..uiMapID) end
-      if not uiMapID then return end			
+      if not uiMapID then return end
       local mapChildren = C_Map.GetMapChildrenInfo(uiMapID, Enum.UIMapType.Zone) -- get current map children
       if ( (type(mapChildren) ~= 'table') or (#mapChildren < 1) ) then return end -- mapChildren is not table or empty
       local journalInstanceID = self.journalInstanceID
@@ -153,13 +154,14 @@ function IPAInstancePortalProviderPinMixin:OnClick(button)
 				end
       end
 
-      
-      if (not wp_mapid) then -- if no "Dungeon Entrance" is found, try to use Map Pin itself as Source
+
+			-- if anything is missing, TRY to use Pin itself as Source
+      if (not wp_mapid) or (not dungeonEntranceInfo) or (not dungeonEntranceInfo.position) or (not dungeonEntranceInfo.position.x) or (not dungeonEntranceInfo.position.y) then
         wp_mapid = self:GetMap():GetMapID();
         wp_x, wp_y = self:GetPosition()
         wp_name = self.name or "Waypoint"
       end
-    else -- not "RightButton" or "useWaypoints" is false then just open Encounter Journal
+    else -- not ""LeftButton" and IsShiftKeyDown()" or "useWaypoints == false" then open Encounter Journal
       EncounterJournal_LoadUI();
       EncounterJournal_OpenJournal(nil, self.journalInstanceID)
     end
@@ -173,7 +175,6 @@ function IPAInstancePortalProviderPinMixin:OnClick(button)
 
 	-- check for all needed Variables and Add Waypoint if all Variables are present
   if (button == "LeftButton" and IsShiftKeyDown() and useWaypoints == true) and wp_mapid and wp_x and wp_y and wp_name then
-		if IsControlKeyDown() then useTomTom = false end
     AddWaypoint(wp_mapid, wp_x, wp_y, wp_name, useTomTom)
   end
 end
@@ -181,15 +182,20 @@ end
 
 -- Waypoint Function for Blizzard Dungeon Entrance Pins
 local function WaypointDungeonEntrancePinMixin(self, button)
+	if (not self) or (not button) then return end
+
 	local useWaypoints = true
 	local useTomTom = true
-	local wp_mapid, wp_x, wp_y, wp_name
-	useTomTom = useTomTom and (TomTom ~= nil) or false
+	if IPASettings and IPASettings.options then
+		useWaypoints = IPASettings.options.useWaypoints
+		useTomTom = IPASettings.options.useTomTom and (TomTom ~= nil) or false
+	end
 
+	local wp_mapid, wp_x, wp_y, wp_name
 	if (button == "LeftButton" and IsShiftKeyDown() and useWaypoints == true) then
 		local uiMapID = self:GetMap():GetMapID();
-		local journalInstanceID = self.journalInstanceID		
-		
+		local journalInstanceID = self.journalInstanceID
+
 		local dungeonEntrances = C_EncounterJournal.GetDungeonEntrancesForMap(uiMapID);
 		for i, dungeonEntranceInfo in ipairs(dungeonEntrances) do
 			if dungeonEntranceInfo.journalInstanceID == journalInstanceID then
@@ -199,20 +205,19 @@ local function WaypointDungeonEntrancePinMixin(self, button)
 				wp_name = dungeonEntranceInfo.name or "Waypoint"
 			end
 		end
-		
-		-- if no "dungeonEntranceInfo" is found, use Pin itself as Source
-		if (not wp_mapid) then
+
+		-- if anything is missing, TRY to use Pin itself as Source
+		if (not wp_mapid) or (not dungeonEntranceInfo) or (not dungeonEntranceInfo.position) or (not dungeonEntranceInfo.position.x) or (not dungeonEntranceInfo.position.y) then
 			wp_mapid = self:GetMap():GetMapID();
 			wp_x, wp_y = self:GetPosition()
 			wp_name = self.name or "Waypoint"
 		end
-	else -- if not
+	else -- not ""LeftButton" and IsShiftKeyDown()" or "useWaypoints == false" then open Encounter Journal
 		EncounterJournal_LoadUI();
 		EncounterJournal_OpenJournal(nil, self.journalInstanceID);
 	end
-	
+
 	if (button == "LeftButton" and IsShiftKeyDown() and useWaypoints == true) and wp_mapid and wp_x and wp_y and wp_name then
-		if IsControlKeyDown() then useTomTom = false end
 		AddWaypoint(wp_mapid, wp_x, wp_y, wp_name, useTomTom)
 	end
 end
