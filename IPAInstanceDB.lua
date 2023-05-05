@@ -218,6 +218,7 @@ IPAUIInstanceMapDB = {
 
 	[1200]={"Vault of the Incarnates", 2, 60, 10},
 
+	[1205]={"Aberrus, the Shadowed Crucible", 2, 70, 10},
 }
 
 IPAUIInstanceFactionSpecificDB = {
