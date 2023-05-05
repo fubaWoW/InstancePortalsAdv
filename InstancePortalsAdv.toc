@@ -1,6 +1,7 @@
 ## Interface: 100100
 ## Version: @project-version@
 ## Author: fuba
+## IconTexture: Interface\AddOns\InstancePortalsAdv\fubaLogo
 ## Title: Instance Portals |cff0080ffAdvanced|r
 ## Notes: Displays Dungeon & Raid Portals on the Worldmap|n|nThis is an Advanced Version of "Instance Portals" by StevenTroughtonSmith but with more Features and way more Accurate Dungeon & Raid Entrance Pins!
 ## SavedVariables: IPASettings
