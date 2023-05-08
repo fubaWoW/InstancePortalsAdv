@@ -168,6 +168,7 @@ function IPAInstancePortalProviderPinMixin:OnClick(button)
 			end
 			_G.EncounterJournal:SetScript("OnShow", BugfreeEncounterJournal_OnShow)
 			EncounterJournal_OpenJournal(nil, self.journalInstanceID)
+			_G.EncounterJournal:SetScript("OnShow", _G.EncounterJournal_OnShow)
     end
   else -- if self.hub ~= 0, try to use Map Pin itself as Source
     if (button == "LeftButton" and IsShiftKeyDown() and useWaypoints == true) then
@@ -182,7 +183,6 @@ function IPAInstancePortalProviderPinMixin:OnClick(button)
     AddWaypoint(wp_mapid, wp_x, wp_y, wp_name, useTomTom)
   end
 end
-
 
 -- Waypoint Function for Blizzard Dungeon Entrance Pins
 local function WaypointDungeonEntrancePinMixin(self, button)
@@ -223,6 +223,8 @@ local function WaypointDungeonEntrancePinMixin(self, button)
 		end
 		_G.EncounterJournal:SetScript("OnShow", BugfreeEncounterJournal_OnShow)
 		EncounterJournal_OpenJournal(nil, self.journalInstanceID)
+		_G.EncounterJournal:SetScript("OnShow", _G.EncounterJournal_OnShow)
+		
 	end
 
 	if (button == "LeftButton" and IsShiftKeyDown() and useWaypoints == true) and wp_mapid and wp_x and wp_y and wp_name then
