@@ -217,6 +217,8 @@ IPAUIInstanceMapDB = {
 	[1204]={"Halls of Infusion", 1, 60, 10},
 
 	[1200]={"Vault of the Incarnates", 2, 60, 10},
+	
+	[1208]={"Aberrus, the Shadowed Crucible", 2, 60, 10},
 
 }
 
