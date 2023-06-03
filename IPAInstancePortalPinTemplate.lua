@@ -168,7 +168,7 @@ function IPAInstancePortalProviderPinMixin:OnClick(button)
 			end
 			_G.EncounterJournal:SetScript("OnShow", BugfreeEncounterJournal_OnShow)
 			EncounterJournal_OpenJournal(nil, self.journalInstanceID)
-			_G.EncounterJournal:SetScript("OnShow", _G.EncounterJournal_OnShow)
+			--_G.EncounterJournal:SetScript("OnShow", _G.EncounterJournal_OnShow)
     end
   else -- if self.hub ~= 0, try to use Map Pin itself as Source
     if (button == "LeftButton" and IsShiftKeyDown() and useWaypoints == true) then
@@ -223,7 +223,7 @@ local function WaypointDungeonEntrancePinMixin(self, button)
 		end
 		_G.EncounterJournal:SetScript("OnShow", BugfreeEncounterJournal_OnShow)
 		EncounterJournal_OpenJournal(nil, self.journalInstanceID)
-		_G.EncounterJournal:SetScript("OnShow", _G.EncounterJournal_OnShow)
+		--_G.EncounterJournal:SetScript("OnShow", _G.EncounterJournal_OnShow)
 		
 	end
 
