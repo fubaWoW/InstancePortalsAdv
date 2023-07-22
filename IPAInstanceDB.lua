@@ -215,6 +215,7 @@ IPAUIInstanceMapDB = {
 	[1202]={"Ruby Life Pools", 1, 60, 10},
 	[1203]={"The Azure Vault", 1, 60, 10},
 	[1204]={"Halls of Infusion", 1, 60, 10},
+	[1209]={"Dawn of the Infinite", 1, 60, 10},
 
 	[1200]={"Vault of the Incarnates", 2, 60, 10},
 	
