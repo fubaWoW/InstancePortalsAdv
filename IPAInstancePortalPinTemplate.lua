@@ -166,9 +166,8 @@ function IPAInstancePortalProviderPinMixin:OnClick(button)
 			if ( not EncounterJournal ) then
 				EncounterJournal_LoadUI();
 			end
-			_G.EncounterJournal:SetScript("OnShow", BugfreeEncounterJournal_OnShow)
 			EncounterJournal_OpenJournal(nil, self.journalInstanceID)
-			--_G.EncounterJournal:SetScript("OnShow", _G.EncounterJournal_OnShow)
+			_G.EncounterJournal:SetScript("OnShow", nil)
     end
   else -- if self.hub ~= 0, try to use Map Pin itself as Source
     if (button == "LeftButton" and IsShiftKeyDown() and useWaypoints == true) then
@@ -221,9 +220,8 @@ local function WaypointDungeonEntrancePinMixin(self, button)
 		if ( not EncounterJournal ) then
 			EncounterJournal_LoadUI();
 		end
-		_G.EncounterJournal:SetScript("OnShow", BugfreeEncounterJournal_OnShow)
 		EncounterJournal_OpenJournal(nil, self.journalInstanceID)
-		--_G.EncounterJournal:SetScript("OnShow", _G.EncounterJournal_OnShow)
+	 _G.EncounterJournal:SetScript("OnShow", nil)
 		
 	end
 
@@ -232,74 +230,3 @@ local function WaypointDungeonEntrancePinMixin(self, button)
 	end
 end
 _G.DungeonEntrancePinMixin.OnMouseClickAction = WaypointDungeonEntrancePinMixin
-
--- VERY DIRTY workaround to prevent error on EncounterJournal open?!
--- WHY Blizzard... WHY block open EncounterJournal?!
-local function BugfreeEncounterJournal_OnShow(self)
-	self:RegisterEvent("SPELL_TEXT_UPDATE");
-	if ( tonumber(GetCVar("advJournalLastOpened")) == 0 ) then
-		SetCVar("advJournalLastOpened", GetServerTime() );
-	end
-	MainMenuMicroButton_HideAlert(EJMicroButton);
-	MicroButtonPulseStop(EJMicroButton);
-
-	UpdateMicroButtons();
-	PlaySound(SOUNDKIT.IG_CHARACTER_INFO_OPEN);
-	EncounterJournal_LootUpdate();
-	--C_EncounterJournal.OnOpen();
-
-	if not self.lootJournalView then
-		EncounterJournal_SetLootJournalView(LOOT_JOURNAL_POWERS);
-	end
-
-	local instanceSelect = EncounterJournal.instanceSelect;
-
-	--automatically navigate to the current dungeon if you are in one;
-	local mapID = C_Map.GetBestMapForUnit("player");
-	local instanceID = mapID and EJ_GetInstanceForMap(mapID) or 0;
-	local _, instanceType, difficultyID = GetInstanceInfo();
-	if ( EncounterJournal_HasChangedContext(instanceID, instanceType, difficultyID) ) then
-		EncounterJournal_ResetDisplay(instanceID, instanceType, difficultyID);
-		EncounterJournal.queuedPortraitUpdate = nil;
-	elseif ( self.encounter.overviewFrame:IsShown() and EncounterJournal.overviewDefaultRole and not EncounterJournal.encounter.overviewFrame.linkSection ) then
-		local spec, role;
-
-		spec = GetSpecialization();
-		if (spec) then
-			role = GetSpecializationRole(spec);
-		else
-			role = "DAMAGER";
-		end
-
-		if ( EncounterJournal.overviewDefaultRole ~= role ) then
-			EncounterJournal_ToggleHeaders(EncounterJournal.encounter.overviewFrame);
-		end
-	end
-
-	if ( EncounterJournal.queuedPortraitUpdate ) then
-		-- fixes portraits when switching between fullscreen and windowed mode
-		EncounterJournal.queuedPortraitUpdate = false;
-		EncounterJournal_UpdatePortraits();
-	end
-
-	local tierData = GetEJTierData(EJ_GetCurrentTier());
-	if ( not EncounterJournal.suggestTab:IsEnabled() or EncounterJournal.suggestFrame:IsShown() ) then
-		tierData = GetEJTierData(EJSuggestTab_GetPlayerTierIndex());
-	end
-	instanceSelect.bg:SetAtlas(tierData.backgroundAtlas, true);
-
-	local shouldShowPowerTab, powerID = EJMicroButton:ShouldShowPowerTab();
-	if shouldShowPowerTab then
-		self.LootJournal:SetPendingPowerID(powerID);
-		EJ_ContentTab_Select(EncounterJournal.LootJournalTab:GetID());
-		SetCVarBitfield("closedInfoFrames", LE_FRAME_TUTORIAL_FIRST_RUNEFORGE_LEGENDARY_POWER, true);
-	elseif EncounterJournal.instanceSelect:IsShown() then
-		EJ_ContentTab_Select(self.selectedTab);
-	end
-
-	EncounterJournal_CheckAndDisplayLootTab();
-	EncounterJournal_CheckAndDisplayTradingPostTab();
-
-	-- Request raid locks to show the defeated overlay for bosses the player has killed this week.
-	RequestRaidInfo();
-end

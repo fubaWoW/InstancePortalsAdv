@@ -220,6 +220,8 @@ IPAUIInstanceMapDB = {
 	[1200]={"Vault of the Incarnates", 2, 60, 10},
 	
 	[1208]={"Aberrus, the Shadowed Crucible", 2, 60, 10},
+	
+	[1207]={"Amirdrassil, the Dream's Hope", 2, 1, 10},
 
 }
 

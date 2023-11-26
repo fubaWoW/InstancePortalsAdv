@@ -655,5 +655,7 @@ IPAUIPinDB = {
 		{64.421785, 58.471715, {1209}}, -- Dawn of the Infinite
 		-- Zaralek Caverns
 		{87.000000, 74.000000, {1208}}, -- Aberrus, the Shadowed Crucible (needs an update for exact coords later!)
+		-- Emerals Dream
+		{31.000000, 56.000000, {1207}}, -- Amirdrassil, the Dream's Hope
 	}
 }
