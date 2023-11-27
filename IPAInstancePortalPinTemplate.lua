@@ -128,40 +128,57 @@ function IPAInstancePortalProviderPinMixin:OnClick(button)
   if self.hub == 0 then
     if (button == "LeftButton" and IsShiftKeyDown() and useWaypoints == true) then
       local uiMapID = self:GetMap():GetMapID();
-			if Debug and Debug == true then print("uiMapID: "..uiMapID) end
+			IPAUIPrintDebug("uiMapID: "..uiMapID)
       if not uiMapID then return end
-      local mapChildren = C_Map.GetMapChildrenInfo(uiMapID, Enum.UIMapType.Zone) -- get current map children
-      if ( (type(mapChildren) ~= 'table') or (#mapChildren < 1) ) then return end -- mapChildren is not table or empty
-      local journalInstanceID = self.journalInstanceID
-			if Debug and Debug == true then print("journalInstanceID: "..journalInstanceID) end
+
+			local journalInstanceID = self.journalInstanceID
+			IPAUIPrintDebug("self.journalInstanceID: "..journalInstanceID)
       if not journalInstanceID then return end
 
-      for _, childMapInfo in ipairs(mapChildren) do -- enum "current" map for children
-        if childMapInfo and childMapInfo.mapID then
-          local dungeonEntrances = C_EncounterJournal.GetDungeonEntrancesForMap(childMapInfo.mapID); -- get Dungeon Entrances for current Map
-          for _, dungeonEntranceInfo in ipairs(dungeonEntrances) do -- enum "dungeonEntrances"
-            if dungeonEntranceInfo.journalInstanceID == journalInstanceID then -- found Dungeon with matching instanceID
-							IPAUIPrintDebug("InstanceID: "..journalInstanceID)
-              wp_mapid = childMapInfo.mapID
-              wp_x = dungeonEntranceInfo.position.x
-              wp_y = dungeonEntranceInfo.position.y
-              wp_name = dungeonEntranceInfo.name or "Waypoint"
-							IPAUIPrintDebug("childMapInfo.mapID: "..childMapInfo.mapID)
-							IPAUIPrintDebug("dungeonEntranceInfo.name: "..dungeonEntranceInfo.name)
-							IPAUIPrintDebug("dungeonEntranceInfo.position.x: "..dungeonEntranceInfo.position.x)
-							IPAUIPrintDebug("dungeonEntranceInfo.position.y: "..dungeonEntranceInfo.position.y)
-						end
-          end
-				end
-      end
+			-- function C_Map.GetMapChildrenInfo(uiMapID, optional mapType, optional allDescendants)
+      local mapChildren = C_Map.GetMapChildrenInfo(uiMapID, Enum.UIMapType.Zone) -- get current map children
+      if ( (type(mapChildren) ~= 'table') or (#mapChildren < 1) ) then return end -- mapChildren is not table or empty
 
+			if journalInstanceID == 1179 then -- special case "The Eternal Palace"
+				local name = EJ_GetInstanceInfo(1179) or "The Eternal Palace"
+				
+				wp_mapid = 1355
+				wp_x = (0.50369811058044)
+				wp_y = (0.12483072280884)
+				wp_name = name
+			else
+				for _, childMapInfo in ipairs(mapChildren) do -- enum "current" map for children
+					if childMapInfo and childMapInfo.mapID then
+						local dungeonEntrances = C_EncounterJournal.GetDungeonEntrancesForMap(childMapInfo.mapID); -- get Dungeon Entrances for current Map
+						for _, dungeonEntranceInfo in ipairs(dungeonEntrances) do -- enum "dungeonEntrances"
+							if dungeonEntranceInfo.journalInstanceID == journalInstanceID then -- found Dungeon with matching instanceID
+								IPAUIPrintDebug("InstanceID: "..journalInstanceID)
+								wp_mapid = childMapInfo.mapID
+								wp_x = dungeonEntranceInfo.position.x
+								wp_y = dungeonEntranceInfo.position.y
+								wp_name = dungeonEntranceInfo.name or "Waypoint"
+								IPAUIPrintDebug("childMapInfo.mapID: "..childMapInfo.mapID)
+								IPAUIPrintDebug("dungeonEntranceInfo.name: "..dungeonEntranceInfo.name)
+								IPAUIPrintDebug("dungeonEntranceInfo.position.x: "..dungeonEntranceInfo.position.x)
+								IPAUIPrintDebug("dungeonEntranceInfo.position.y: "..dungeonEntranceInfo.position.y)
+							end
+						end
+					end
+				end
+			end
 
 			-- if anything is missing, TRY to use Pin itself as Source
-      if (not wp_mapid) or (not dungeonEntranceInfo) or (not dungeonEntranceInfo.position) or (not dungeonEntranceInfo.position.x) or (not dungeonEntranceInfo.position.y) then
-        wp_mapid = self:GetMap():GetMapID();
-        wp_x, wp_y = self:GetPosition()
-        wp_name = self.name or "Waypoint"
-      end
+      if (not wp_mapid) or (not wp_x) or (not wp_y) or (not wp_name) then
+				IPAUIPrintDebug("Waypoint Info is missing, try to use PIN as Source")
+				if (not wp_mapid) then IPAUIPrintDebug("Missing: wp_mapid") end
+				if (not wp_x) then IPAUIPrintDebug("Missing: wp_x") end
+				if (not wp_y) then IPAUIPrintDebug("Missing: wp_y") end
+				if (not wp_name) then	IPAUIPrintDebug("Missing: wp_name")	end
+
+				wp_mapid = self:GetMap():GetMapID();
+				wp_x, wp_y = self:GetPosition()
+				wp_name = self.name or "Waypoint"
+			end
     else -- not ""LeftButton" and IsShiftKeyDown()" or "useWaypoints == false" then open Encounter Journal
 			if ( not EncounterJournal ) then
 				EncounterJournal_LoadUI();
@@ -179,6 +196,7 @@ function IPAInstancePortalProviderPinMixin:OnClick(button)
 
 	-- check for all needed Variables and Add Waypoint if all Variables are present
   if (button == "LeftButton" and IsShiftKeyDown() and useWaypoints == true) and wp_mapid and wp_x and wp_y and wp_name then
+		IPAUIPrintDebug("\nWaypoint Info:\n  MapID: "..wp_mapid.."\n  X: "..wp_x.."\n  Y: "..wp_y.."\n  Name: "..wp_name.."\n  System: "..(useTomTom and "TomTom" or "Blizzard").."\n")
     AddWaypoint(wp_mapid, wp_x, wp_y, wp_name, useTomTom)
   end
 end
@@ -211,21 +229,29 @@ local function WaypointDungeonEntrancePinMixin(self, button)
 		end
 
 		-- if anything is missing, TRY to use Pin itself as Source
-		if (not wp_mapid) or (not dungeonEntranceInfo) or (not dungeonEntranceInfo.position) or (not dungeonEntranceInfo.position.x) or (not dungeonEntranceInfo.position.y) then
+		if (not wp_mapid) or (not wp_x) or (not wp_y) or (not wp_name) then
+			IPAUIPrintDebug("Waypoint Info is missing, try to use PIN as Source")
+			if (not wp_mapid) then IPAUIPrintDebug("Missing: wp_mapid") end
+			if (not wp_x) then IPAUIPrintDebug("Missing: wp_x") end
+			if (not wp_y) then IPAUIPrintDebug("Missing: wp_y") end
+			if (not wp_name) then	IPAUIPrintDebug("Missing: wp_name")	end
+
 			wp_mapid = self:GetMap():GetMapID();
 			wp_x, wp_y = self:GetPosition()
 			wp_name = self.name or "Waypoint"
 		end
+
 	else -- not ""LeftButton" and IsShiftKeyDown()" or "useWaypoints == false" then open Encounter Journal
 		if ( not EncounterJournal ) then
 			EncounterJournal_LoadUI();
 		end
 		EncounterJournal_OpenJournal(nil, self.journalInstanceID)
 	 _G.EncounterJournal:SetScript("OnShow", nil)
-		
+
 	end
 
 	if (button == "LeftButton" and IsShiftKeyDown() and useWaypoints == true) and wp_mapid and wp_x and wp_y and wp_name then
+		IPAUIPrintDebug("\nWaypoint Info:\n  MapID: "..wp_mapid.."\n  X: "..wp_x.."\n  Y: "..wp_y.."\n  Name: "..wp_name.."\n  System: "..(useTomTom and "TomTom" or "Blizzard").."\n")
 		AddWaypoint(wp_mapid, wp_x, wp_y, wp_name, useTomTom)
 	end
 end
