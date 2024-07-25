@@ -37,7 +37,7 @@ function InstancePortalAdvUI_OnLoad(self)
 
 	IPAUIPrintDebug("InstancePortalAdvUI_OnLoad()")
 	WorldMapFrame:AddDataProvider(CreateFromMixins(IPAInstancePortalMapDataProviderMixin));
-	hooksecurefunc("ToggleDropDownMenu", IPAUIDropDownInit)
+	--hooksecurefunc("ToggleDropDownMenu", IPAUIDropDownInit)
 
 end
 
