@@ -123,10 +123,8 @@ function IPAInstancePortalProviderPinMixin:OnMouseClickAction(button)
 	if (not button) then return end
 
 	if (button == "LeftButton") then
-		local useWaypoints = true
 		local useTomTom = true
 		if IPASettings and IPASettings.options then
-			useWaypoints = IPASettings.options.useWaypoints
 			useTomTom = IPASettings.options.useTomTom and (TomTom ~= nil) or false
 		end
 
@@ -210,54 +208,51 @@ function IPAInstancePortalProviderPinMixin:OnMouseClickAction(button)
 end
 
 
--- temporary disabled until tomtom is fixed and not need for "new" Native Supertracked POI's
---[[
 -- Waypoint Function for Blizzard Dungeon Entrance Pins
 local function WaypointDungeonEntrancePinMixin(self, button)
 	if (not self) or (not button) then return end
 
 	if (button == "LeftButton") then
-		local useWaypoints = true
 		local useTomTom = true
 		if IPASettings and IPASettings.options then
-			useWaypoints = IPASettings.options.useWaypoints
 			useTomTom = IPASettings.options.useTomTom and (TomTom ~= nil) or false
-		end
-
-		if (useTomTom ~= true) then
-			SuperTrackablePinMixin.OnMouseClickAction(self, button);
-		else
+		end		
+		IPAUIPrintDebug("useTomTom: "..tostring(useTomTom))
+		
+		if (useTomTom == true) then
 			local wp_mapid, wp_x, wp_y, wp_name
-			if (button == "LeftButton" and IsShiftKeyDown() and useWaypoints == true) then
-				local uiMapID = self:GetMap():GetMapID();
-				local journalInstanceID = self.journalInstanceID
+			local uiMapID = self:GetMap():GetMapID();
+			local journalInstanceID = self.journalInstanceID
 
-				local dungeonEntrances = C_EncounterJournal.GetDungeonEntrancesForMap(uiMapID);
-				for i, dungeonEntranceInfo in ipairs(dungeonEntrances) do
-					if dungeonEntranceInfo.journalInstanceID == journalInstanceID then
-						IPAUIPrintDebug("InstanceID: "..journalInstanceID)
-						wp_mapid = uiMapID
-						wp_x = dungeonEntranceInfo.position.x
-						wp_y = dungeonEntranceInfo.position.y
-						wp_name = dungeonEntranceInfo.name or "Waypoint"
-					end
-				end
-
-				-- if anything is missing, TRY to use Pin itself as Source
-				if (not wp_mapid) or (not wp_x) or (not wp_y) or (not wp_name) then
-					IPAUIPrintDebug("Waypoint Info is missing, try to use PIN as Source")
-					if (not wp_mapid) then IPAUIPrintDebug("Missing: wp_mapid") end
-					if (not wp_x) then IPAUIPrintDebug("Missing: wp_x") end
-					if (not wp_y) then IPAUIPrintDebug("Missing: wp_y") end
-					if (not wp_name) then	IPAUIPrintDebug("Missing: wp_name")	end
-
-					wp_mapid = self:GetMap():GetMapID();
-					wp_x, wp_y = self:GetPosition()
-					wp_name = self.name or "Waypoint"
+			local dungeonEntrances = C_EncounterJournal.GetDungeonEntrancesForMap(uiMapID);
+			for i, dungeonEntranceInfo in ipairs(dungeonEntrances) do
+				if dungeonEntranceInfo.journalInstanceID == journalInstanceID then
+					IPAUIPrintDebug("InstanceID: "..journalInstanceID)
+					wp_mapid = uiMapID
+					wp_x = dungeonEntranceInfo.position.x
+					wp_y = dungeonEntranceInfo.position.y
+					wp_name = dungeonEntranceInfo.name or "Waypoint"
 				end
 			end
+
+			-- if anything is missing, TRY to use Pin itself as Source
+			if (not wp_mapid) or (not wp_x) or (not wp_y) or (not wp_name) then
+				IPAUIPrintDebug("Waypoint Info is missing, try to use PIN as Source")
+				if (not wp_mapid) then IPAUIPrintDebug("Missing: wp_mapid") end
+				if (not wp_x) then IPAUIPrintDebug("Missing: wp_x") end
+				if (not wp_y) then IPAUIPrintDebug("Missing: wp_y") end
+				if (not wp_name) then	IPAUIPrintDebug("Missing: wp_name")	end
+
+				wp_mapid = self:GetMap():GetMapID();
+				wp_x, wp_y = self:GetPosition()
+				wp_name = self.name or "Waypoint"
+			end
 			
+			IPAUIPrintDebug("\nWaypoint Info:\n  MapID: "..wp_mapid.."\n  X: "..wp_x.."\n  Y: "..wp_y.."\n  Name: "..wp_name.."\n  System: "..(useTomTom and "TomTom" or "Blizzard").."\n")
 			AddTomTomWaypoint(wp_mapid, wp_x, wp_y, wp_name)
+		else
+			-- useTomTom is NOT true, use Native Tracking system
+			SuperTrackablePinMixin.OnMouseClickAction(self, button);
 		end
 	elseif button == "RightButton" then
 		EncounterJournal_LoadUI();
@@ -265,4 +260,3 @@ local function WaypointDungeonEntrancePinMixin(self, button)
 	end
 end
 _G.DungeonEntrancePinMixin.OnMouseClickAction = WaypointDungeonEntrancePinMixin
-]]

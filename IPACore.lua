@@ -43,13 +43,18 @@ end
 
 function InstancePortalAdvUI_OnEvent(event, arg1)
 	if event == "ADDON_LOADED" then
+		--[[
 		if IPAUITrackInstancePortals == nil then
 			IPAUIPrintDebug("IPUISetDefaults()")
 			IPAUITrackInstancePortals = true
 			IPAUITrackInstancePortalsOnContinents = true
 		end
+		]]
 
 		IPAUIPrintDebug("ADDON_LOADED()")
+
+		IPAUITrackInstancePortals = true
+		IPAUITrackInstancePortalsOnContinents = true
 
 		RegisterCVar("IPAUITrackInstancePortals")
 		RegisterCVar("IPAUITrackInstancePortalsOnContinents")
