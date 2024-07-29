@@ -37,79 +37,11 @@ function InstancePortalAdvUI_OnLoad(self)
 
 	IPAUIPrintDebug("InstancePortalAdvUI_OnLoad()")
 	WorldMapFrame:AddDataProvider(CreateFromMixins(IPAInstancePortalMapDataProviderMixin));
-	--hooksecurefunc("ToggleDropDownMenu", IPAUIDropDownInit)
-
 end
 
 function InstancePortalAdvUI_OnEvent(event, arg1)
 	if event == "ADDON_LOADED" then
-		--[[
-		if IPAUITrackInstancePortals == nil then
-			IPAUIPrintDebug("IPUISetDefaults()")
-			IPAUITrackInstancePortals = true
-			IPAUITrackInstancePortalsOnContinents = true
-		end
-		]]
-
 		IPAUIPrintDebug("ADDON_LOADED()")
-
-		IPAUITrackInstancePortals = true
-		IPAUITrackInstancePortalsOnContinents = true
-
-		RegisterCVar("IPAUITrackInstancePortals")
-		RegisterCVar("IPAUITrackInstancePortalsOnContinents")
-	end
-end
-
-function IPAUIDropDownInit(_, _, dropDownFrame, _, _, _, _, clickedButton)
-	local trackingOptionsFrame = WorldMapFrame.overlayFrames[2]
-	local trackingOptionsMenu = trackingOptionsFrame.DropDown
-
-	IPAUIPrintDebug("IPAUIDropDownInit")
-
-	local function OnSelection(button)
-		if button.value == "IPAUITrackInstancePortals" then
-			IPAUITrackInstancePortals = button.checked
-		else
-			IPAUITrackInstancePortalsOnContinents = button.checked
-		end
-
-		SetCVar(button.value, button.checked and "1" or "0", "INSTANCE_PORTAL_REFRESH");
-		WorldMapFrame:RefreshAllDataProviders()
-	end
-
-	if dropDownFrame == trackingOptionsMenu then
-
-		local info = UIDropDownMenu_CreateInfo();
-
-		UIDropDownMenu_AddSeparator();
-		info.isTitle = true;
-		info.notCheckable = true;
-		info.text = DUNGEONS.." / "..RAIDS;
-		info.isNotRadio = true;
-		UIDropDownMenu_AddButton(info);
-
-		info = UIDropDownMenu_CreateInfo();
-		info.isTitle = nil;
-		info.notCheckable = nil;
-		info.text = "Show on Zone Map"; --BATTLEFIELD_MINIMAP
-		info.isNotRadio = true;
-		info.checked = IPAUITrackInstancePortals;
-		info.func = OnSelection;
-		info.keepShownOnClick = true;
-		info.value = "IPAUITrackInstancePortals";
-		--UIDropDownMenu_AddButton(info);
-
-		info = UIDropDownMenu_CreateInfo();
-		info.isTitle = nil;
-		info.notCheckable = nil;
-		info.text = "Show on Continent Map"; --WORLD_MAP
-		info.isNotRadio = true;
-		info.checked = IPAUITrackInstancePortalsOnContinents;
-		info.func = OnSelection;
-		info.keepShownOnClick = true;
-		info.value = "IPAUITrackInstancePortalsOnContinents";
-		UIDropDownMenu_AddButton(info);
 	end
 end
 

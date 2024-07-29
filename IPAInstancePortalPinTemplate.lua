@@ -16,7 +16,7 @@ end
 function IPAInstancePortalMapDataProviderMixin:OnEvent(event, ...)
 	if event == "CVAR_UPDATE" then
 		local eventName, value = ...;
-		if eventName == "INSTANCE_PORTAL_REFRESH" then
+		if eventName == "showDungeonEntrancesOnMap" then
 			self:RefreshAllData();
 		end
 	end
@@ -26,8 +26,7 @@ function IPAInstancePortalMapDataProviderMixin:RefreshAllData(fromOnShow)
 	self:RemoveAllData();
 	IPAUIPrintDebug("IPAInstancePortalMapDataProviderMixin:RefreshAllData")
 
-	local trackOnZones = IPAUITrackInstancePortals
-	local trackOnContinents = IPAUITrackInstancePortalsOnContinents
+	local showDungeonEntrancesOnMap = C_CVar and C_CVar.GetCVarBool("showDungeonEntrancesOnMap") or false
 
 	local mapID = self:GetMap():GetMapID();
 	IPAUIPrintDebug("Map ID = "..mapID)
@@ -66,7 +65,7 @@ function IPAInstancePortalMapDataProviderMixin:RefreshAllData(fromOnShow)
 					isWhitelisted = false
 				end
 
-				if (isContinent and trackOnContinents) or (not isContinent and trackOnZones) then
+				if showDungeonEntrancesOnMap then
 					if (isWhitelisted) then
 						local pin = self:GetMap():AcquirePin("IPAInstancePortalPinTemplate", entranceInfo);
 						pin.dataProvider = self;
@@ -216,9 +215,9 @@ local function WaypointDungeonEntrancePinMixin(self, button)
 		local useTomTom = true
 		if IPASettings and IPASettings.options then
 			useTomTom = IPASettings.options.useTomTom and (TomTom ~= nil) or false
-		end		
+		end
 		IPAUIPrintDebug("useTomTom: "..tostring(useTomTom))
-		
+
 		if (useTomTom == true) then
 			local wp_mapid, wp_x, wp_y, wp_name
 			local uiMapID = self:GetMap():GetMapID();
@@ -247,7 +246,7 @@ local function WaypointDungeonEntrancePinMixin(self, button)
 				wp_x, wp_y = self:GetPosition()
 				wp_name = self.name or "Waypoint"
 			end
-			
+
 			IPAUIPrintDebug("\nWaypoint Info:\n  MapID: "..wp_mapid.."\n  X: "..wp_x.."\n  Y: "..wp_y.."\n  Name: "..wp_name.."\n  System: "..(useTomTom and "TomTom" or "Blizzard").."\n")
 			AddTomTomWaypoint(wp_mapid, wp_x, wp_y, wp_name)
 		else
