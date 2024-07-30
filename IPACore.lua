@@ -1,10 +1,15 @@
+local addonName, IPA = ...
+
 local DefaultSettings = {
   options = {
     debug = false,
-		useWaypoints = true,
-    useTomTom = true,
+		pinsOnContinentMap = true,
+		useWaypointsContient = true,
+		useWaypointsZone = true,
+    useTomTomZone = true,
+    useTomTomContinent = true,
   },
-  version = 1,
+  version = 2,
 }
 
 local function CreateDatabase()
@@ -15,8 +20,8 @@ local function ReCreateDatabase()
   IPASettings = DefaultSettings
 end
 
-function IPAUIPrintDebug(debugtext)
-  if IPASettings and IPASettings.options and IPASettings.options.debug then
+function IPAUIPrintDebug(debugtext, force)
+  if (IPASettings and IPASettings.options and IPASettings.options.debug == true) or (force == true) then
     DEFAULT_CHAT_FRAME:AddMessage("|cffff8000IPADebug\[|r"..debugtext.."|cffff8000\]")
   end
 end
@@ -26,22 +31,22 @@ if not IPASettings then
   IPAUIPrintDebug("Database: Create default Database because empty")
 end
 
-if IPASettings.version and IPASettings.version < DefaultSettings.version then
-  -- do something if "Database Version" is an older version and maybe need attention?!
-  IPAUIPrintDebug("Database: Old version found")
-end
-
 function InstancePortalAdvUI_OnLoad(self)
-	LoadAddOn("Blizzard_WorldMap")
-	self:RegisterEvent("ADDON_LOADED")
+	--LoadAddOn("Blizzard_WorldMap")
+	self:RegisterEvent("PLAYER_ENTERING_WORLD")
 
 	IPAUIPrintDebug("InstancePortalAdvUI_OnLoad()")
 	WorldMapFrame:AddDataProvider(CreateFromMixins(IPAInstancePortalMapDataProviderMixin));
 end
 
 function InstancePortalAdvUI_OnEvent(event, arg1)
-	if event == "ADDON_LOADED" then
-		IPAUIPrintDebug("ADDON_LOADED()")
+	if event == "PLAYER_ENTERING_WORLD" then
+		if IPASettings and IPASettings.version and IPASettings.version < DefaultSettings.version then
+			-- do something if "Database Version" is an older version and maybe need attention?!
+			IPAUIPrintDebug("Old Database found, Instance Portal Advanced Settings will resetted!", true)
+			IPAUIPrintDebug("Use the NEW Settings Page at \"Options >> AddOns\" from now on.", true)
+			ReCreateDatabase()
+		end
 	end
 end
 
@@ -164,6 +169,8 @@ RegisterCVar("IPAUITrackInstancePortalsOnContinents")
 /dump GetCVar("IPAUITrackInstancePortals")
 ]]
 
+
+--[[
 -- Slash Commands for "Config" until i maybe or not add an Optionsframe ;)
 _G.SLASH_IPASETTINGS1 = '/ipa'
 _G.SLASH_IPASETTINGS2 = '/ipadv'
@@ -224,3 +231,4 @@ SlashCmdList.IPASETTINGS = function(msg)
 		print("|cffff8000[Instance Portal Advanced]|r Reseted Databse to Default")
   end
 end
+]]

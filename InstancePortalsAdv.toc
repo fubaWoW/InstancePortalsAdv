@@ -3,14 +3,15 @@
 ## Author: fuba
 ## IconTexture: Interface\AddOns\InstancePortalsAdv\fubaLogo
 ## Title: Instance Portals |cff0080ffAdvanced|r
-## Notes: Displays Dungeon & Raid Portals on the Worldmap|n|nThis is an Advanced Version of "Instance Portals" by StevenTroughtonSmith but with more Features and way more Accurate Dungeon & Raid Entrance Pins!
+## Notes: Displays Dungeon & Raid Portals on the Continent Map|n|nThis is an Advanced Version of "Instance Portals" by StevenTroughtonSmith but with more Features and WAY MORE accurate Dungeon & Raid Entrance Pins that comes directly from Blizzard!
 ## SavedVariables: IPASettings
-## SavedVariablesPerCharacter: IPAUITrackInstancePortals IPAUITrackInstancePortalsOnContinents
 
 ## X-Curse-Project-ID: 721768
 
+IPACore.lua
 IPAPinDB.lua
 IPAInstanceDB.lua
 IPAInstancePortalPinTemplate.xml
-IPACore.lua
 InstancePortalsAdv.xml
+
+IPAConfig.lua

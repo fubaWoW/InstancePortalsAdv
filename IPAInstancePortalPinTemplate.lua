@@ -1,4 +1,5 @@
-local addonName, addon = ...
+local addonName, IPA = ...
+
 IPAInstancePortalMapDataProviderMixin = CreateFromMixins(MapCanvasDataProviderMixin);
 
 function IPAInstancePortalMapDataProviderMixin:RemoveAllData()
@@ -24,6 +25,11 @@ end
 
 function IPAInstancePortalMapDataProviderMixin:RefreshAllData(fromOnShow)
 	self:RemoveAllData();
+
+	local pinsOnContinentMap = IPASettings and IPASettings.options.pinsOnContinentMap
+	pinsOnContinentMap = pinsOnContinentMap == nil and true or pinsOnContinentMap
+	if (pinsOnContinentMap ~= true) then return end
+
 	IPAUIPrintDebug("IPAInstancePortalMapDataProviderMixin:RefreshAllData")
 
 	local showDungeonEntrancesOnMap = C_CVar and C_CVar.GetCVarBool("showDungeonEntrancesOnMap") or false
@@ -121,11 +127,15 @@ end
 function IPAInstancePortalProviderPinMixin:OnMouseClickAction(button)
 	if (not button) then return end
 
-	if (button == "LeftButton") then
-		local useTomTom = true
-		if IPASettings and IPASettings.options then
-			useTomTom = IPASettings.options.useTomTom and (TomTom ~= nil) or false
-		end
+	local useWaypointsContient = IPASettings and IPASettings.options.useWaypointsContient
+	useWaypointsContient = useWaypointsContient == nil and true or useWaypointsContient
+
+	local useTomTomContinent = IPASettings and IPASettings.options.useTomTomContinent
+	useTomTomContinent = useTomTomContinent == nil and false or useTomTomContinent
+	useTomTomContinent = useTomTomContinent and (TomTom ~= nil) or false
+	IPAUIPrintDebug("useTomTomContinent: "..tostring(useTomTomContinent))
+
+	if (button == "LeftButton") and (useWaypointsContient == true) then
 
 		local wp_mapid, wp_x, wp_y, wp_name
 		IPAUIPrintDebug("IPAInstancePortalProviderPinMixin:OnMouseClickAction, button: "..tostring(button))
@@ -193,7 +203,7 @@ function IPAInstancePortalProviderPinMixin:OnMouseClickAction(button)
 
 		IPAUIPrintDebug("\nWaypoint Info:\n  MapID: "..wp_mapid.."\n  X: "..wp_x.."\n  Y: "..wp_y.."\n  Name: "..wp_name.."\n  System: "..(useTomTom and "TomTom" or "Blizzard").."\n")
 
-		if useTomTom ~= true then
+		if useTomTomContinent ~= true then
 			AddNativeWaypoint(wp_mapid, wp_x, wp_y)
 		else
 			AddTomTomWaypoint(wp_mapid, wp_x, wp_y, wp_name)
@@ -211,14 +221,16 @@ end
 local function WaypointDungeonEntrancePinMixin(self, button)
 	if (not self) or (not button) then return end
 
-	if (button == "LeftButton") then
-		local useTomTom = true
-		if IPASettings and IPASettings.options then
-			useTomTom = IPASettings.options.useTomTom and (TomTom ~= nil) or false
-		end
-		IPAUIPrintDebug("useTomTom: "..tostring(useTomTom))
+	local useWaypointsZone = IPASettings and IPASettings.options.useWaypointsZone
+	useWaypointsZone = useWaypointsZone == nil and true or useWaypointsZone
 
-		if (useTomTom == true) then
+	local useTomTomZone = IPASettings and IPASettings.options.useTomTomZone
+	useTomTomZone = useTomTomZone == nil and false or useTomTomZone
+	useTomTomZone = useTomTomZone and (TomTom ~= nil) or false
+	IPAUIPrintDebug("useTomTomZone: "..tostring(useTomTomZone))
+
+	if (button == "LeftButton") and (useWaypointsZone == true) then
+		if (useTomTomZone == true) then
 			local wp_mapid, wp_x, wp_y, wp_name
 			local uiMapID = self:GetMap():GetMapID();
 			local journalInstanceID = self.journalInstanceID
@@ -250,7 +262,7 @@ local function WaypointDungeonEntrancePinMixin(self, button)
 			IPAUIPrintDebug("\nWaypoint Info:\n  MapID: "..wp_mapid.."\n  X: "..wp_x.."\n  Y: "..wp_y.."\n  Name: "..wp_name.."\n  System: "..(useTomTom and "TomTom" or "Blizzard").."\n")
 			AddTomTomWaypoint(wp_mapid, wp_x, wp_y, wp_name)
 		else
-			-- useTomTom is NOT true, use Native Tracking system
+			-- useTomTomZone is NOT true, use Native Tracking system
 			SuperTrackablePinMixin.OnMouseClickAction(self, button);
 		end
 	elseif button == "RightButton" then
