@@ -8,8 +8,11 @@ eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 
 IPASettings = IPASettings or {}
 
-function IPA:CreateSettings()
+local SettingsRegistered = false
 
+function IPA:CreateSettings()
+	if SettingsRegistered then return end
+	
 	local function OnSettingChanged(_, setting, value)
 		local variable = setting:GetVariable();
 		IPASettings["options"][variable] = value;
@@ -108,6 +111,8 @@ function IPA:CreateSettings()
 	SlashCmdList[addonName .. 'Options'] = function(msg)
 		Settings.OpenToCategory(categoryMain.ID)
 	end
+	
+	SettingsRegistered = true
 end
 
 eventFrame:SetScript("OnEvent", function(self, event, ...)
