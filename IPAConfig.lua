@@ -3,8 +3,7 @@ local addonName, IPA = ...
 _G["InstancePortalsAdv"] = IPA
 
 local eventFrame = CreateFrame("FRAME")
-eventFrame:RegisterEvent("ADDON_LOADED")
-eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+eventFrame:RegisterEvent("PLAYER_LOGIN")
 
 IPASettings = IPASettings or {}
 
@@ -116,9 +115,8 @@ function IPA:CreateSettings()
 end
 
 eventFrame:SetScript("OnEvent", function(self, event, ...)
-	if event == "PLAYER_ENTERING_WORLD" then
-		local  isLogin, isReload = ...
-		-- Create Settings on "PLAYER_ENTERING_WORLD" because of TomTom Support
+	if event == "PLAYER_LOGIN" then
+		-- Create Settings on "PLAYER_LOGIN" because of TomTom Support (TomTom needs to be loaded first)
 			IPA:CreateSettings()
 	end
 end)
