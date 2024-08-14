@@ -9,9 +9,7 @@
 ## X-Curse-Project-ID: 721768
 
 IPACore.lua
-IPAPinDB.lua
-IPAInstanceDB.lua
+IPAConfig.lua
+IPASpecialPinDB.lua
 IPAInstancePortalPinTemplate.xml
 InstancePortalsAdv.xml
-
-IPAConfig.lua
