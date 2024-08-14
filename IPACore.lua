@@ -1,23 +1,23 @@
 local addonName, IPA = ...
 
-local DefaultSettings = {
+IPA.DefaultSettings = {
   options = {
     debug = false,
 		pinsOnContinentMap = true,
 		useWaypointsContient = true,
 		useWaypointsZone = true,
-    useTomTomZone = true,
-    useTomTomContinent = true,
+    useTomTomZone = false,
+    useTomTomContinent = false,
   },
-  version = 2,
+  version = 3,
 }
 
 local function CreateDatabase()
-  if (not IPASettings) or (IPASettings == nil) then IPASettings = DefaultSettings end
+  if (not IPASettings) or (IPASettings == nil) then IPASettings = IPA.DefaultSettings end
 end
 
 local function ReCreateDatabase()
-  IPASettings = DefaultSettings
+  IPASettings = IPA.DefaultSettings
 end
 
 function IPAUIPrintDebug(debugtext, force)
@@ -31,6 +31,16 @@ if not IPASettings then
   IPAUIPrintDebug("Database: Create default Database because empty")
 end
 
+-- check if "value {v}" already exists in "table {t}"
+function InstancePortalAdv_tableContains(t, v)
+    for _, item in ipairs(t) do
+        if item == v then
+            return true
+        end
+    end
+    return false
+end
+
 function InstancePortalAdvUI_OnLoad(self)
 	--LoadAddOn("Blizzard_WorldMap")
 	self:RegisterEvent("PLAYER_ENTERING_WORLD")
@@ -41,11 +51,17 @@ end
 
 function InstancePortalAdvUI_OnEvent(event, arg1)
 	if event == "PLAYER_ENTERING_WORLD" then
-		if IPASettings and IPASettings.version and IPASettings.version < DefaultSettings.version then
-			-- do something if "Database Version" is an older version and maybe need attention?!
-			IPAUIPrintDebug("Old Database found, Instance Portal Advanced Settings will resetted!", true)
-			IPAUIPrintDebug("Use the NEW Settings Page at \"Options >> AddOns\" from now on.", true)
-			ReCreateDatabase()
+		if IPASettings then
+			if not (IPASettings.version) then
+				IPAUIPrintDebug("Settings Error Instance Portal Advanced Settings will resetted!", true)
+				IPAUIPrintDebug("Use the NEW Settings Page at \"Options >> AddOns\" from now on.", true)
+				ReCreateDatabase()
+			elseif IPASettings.version and IPASettings.version < IPA.DefaultSettings.version then
+				-- do something if "Database Version" is an older version and maybe need attention?!
+				IPAUIPrintDebug("Old Database found, Instance Portal Advanced Settings will resetted!", true)
+				IPAUIPrintDebug("Use the NEW Settings Page at \"Options >> AddOns\" from now on.", true)
+				ReCreateDatabase()
+			end
 		end
 	end
 end
@@ -77,9 +93,9 @@ function IPAUIGetEntranceInfoForMapID(mapID, i)
 		end
 
 		if hubName then
-			entranceInfo = {};
-
-			entranceInfo["areaPoiID"] = C_AreaPoiInfo.GetAreaPOIForMap(mapID)[0];
+			local entranceInfo = {};
+						
+			entranceInfo["areaPoiID"] = 0
 			entranceInfo["position"] = CreateVector2D(x, y);
 			entranceInfo["name"] = hubName;
 
@@ -113,6 +129,19 @@ function IPAUIGetEntranceInfoForMapID(mapID, i)
 			entranceInfo["journalInstanceID"] = 0;
 			entranceInfo["hub"] = 1;
 			entranceInfo["factionWhitelist"] = factionWhitelist;
+			
+			local mapChildren = C_Map.GetMapChildrenInfo(mapID, Enum.UIMapType.Zone) -- get current map children
+			
+			for _, childMapInfo in ipairs(mapChildren) do -- enum "current" map for children
+				if childMapInfo and childMapInfo.mapID then
+					local dungeonEntrances = C_EncounterJournal.GetDungeonEntrancesForMap(childMapInfo.mapID);
+					for _, dungeonEntranceInfo in ipairs(dungeonEntrances) do -- enum "dungeonEntrances"
+						if dungeonEntranceInfo.journalInstanceID == subInstanceMapIDs[1] then
+							entranceInfo["areaPoiID"] = dungeonEntranceInfo.areaPoiID -- use FIRST instanceID for Supertracking!
+						end
+					end
+				end
+			end
 
 			IPAUIPrintDebug("Hub: " .. entranceInfo["name"]);
 
@@ -127,9 +156,10 @@ function IPAUIGetEntranceInfoForMapID(mapID, i)
 
 			local tier = desired_IPAUIInstanceMapDB[subInstanceMapIDs[m]][4]
 
-			entranceInfo = {};
+			local entranceInfo = {};
 
-			entranceInfo["areaPoiID"] = C_AreaPoiInfo.GetAreaPOIForMap(mapID)[0];
+			
+			entranceInfo["areaPoiID"] = 0
 			entranceInfo["position"] = CreateVector2D(x, y);
 			if (type == 1) then
 				entranceInfo["atlasName"] = "Dungeon";
@@ -150,6 +180,20 @@ function IPAUIGetEntranceInfoForMapID(mapID, i)
 			entranceInfo["tier"] = tier;
 			entranceInfo["hub"] = 0;
 			entranceInfo["factionWhitelist"] = factionWhitelist;
+			
+			--print(tostring(mapID))
+			local mapChildren = C_Map.GetMapChildrenInfo(mapID, Enum.UIMapType.Zone) -- get current map children
+			
+			for _, childMapInfo in ipairs(mapChildren) do -- enum "current" map for children
+				if childMapInfo and childMapInfo.mapID then
+					local dungeonEntrances = C_EncounterJournal.GetDungeonEntrancesForMap(childMapInfo.mapID);
+					for _, dungeonEntranceInfo in ipairs(dungeonEntrances) do -- enum "dungeonEntrances"
+						if dungeonEntranceInfo.journalInstanceID == instanceID then
+							entranceInfo["areaPoiID"] = dungeonEntranceInfo.areaPoiID
+						end
+					end
+				end
+			end
 
 			IPAUIPrintDebug("Instance: " .. entranceInfo["name"].." id:"..instanceID);
 

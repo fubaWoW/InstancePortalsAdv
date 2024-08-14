@@ -26,28 +26,80 @@ end
 function IPAInstancePortalMapDataProviderMixin:RefreshAllData(fromOnShow)
 	self:RemoveAllData();
 
-	local pinsOnContinentMap = IPASettings and IPASettings.options.pinsOnContinentMap
-	pinsOnContinentMap = pinsOnContinentMap == nil and true or pinsOnContinentMap
-	if (pinsOnContinentMap ~= true) then return end
-
 	IPAUIPrintDebug("IPAInstancePortalMapDataProviderMixin:RefreshAllData")
 
 	local showDungeonEntrancesOnMap = C_CVar and C_CVar.GetCVarBool("showDungeonEntrancesOnMap") or false
+	IPAUIPrintDebug("showDungeonEntrancesOnMap: "..tostring(showDungeonEntrancesOnMap))
+	if not showDungeonEntrancesOnMap then return end
 
-	local mapID = self:GetMap():GetMapID();
-	IPAUIPrintDebug("Map ID = "..mapID)
+	local pinsOnContinentMap = IPASettings and IPASettings.options.pinsOnContinentMap
+	pinsOnContinentMap = pinsOnContinentMap == nil and false or pinsOnContinentMap
+	IPAUIPrintDebug("pinsOnContinentMap: "..tostring(pinsOnContinentMap))
+	if not pinsOnContinentMap then return end
 
-	local dungeonEntrances = C_EncounterJournal.GetDungeonEntrancesForMap(mapID)
+	local uiMapID = self:GetMap():GetMapID();
+	IPAUIPrintDebug("uiMapID: "..tostring(uiMapID))
+	if not uiMapID then return end
 
-	for i, dungeonEntranceInfo in ipairs(dungeonEntrances) do
-		IPAUIPrintDebug("Atlas = ("..dungeonEntranceInfo["position"]["x"]..","..dungeonEntranceInfo["position"]["y"]..")")
+	local mapInfo = C_Map.GetMapInfo(uiMapID);
+	IPAUIPrintDebug("mapInfo.mapType: "..tostring(mapInfo.mapType))
+	if not mapInfo then return end	
+	if mapInfo.mapType ~= Enum.UIMapType.Continent then return end
+	
+	-- from here to generate every map pin from Wow internal information
+	local mapChildren = C_Map.GetMapChildrenInfo(uiMapID, Enum.UIMapType.Zone) -- get current map children
+	if ( (type(mapChildren) ~= 'table') or (#mapChildren < 1) ) then return end -- mapChildren is not table or empty
+
+	-- special case: Ny'alotha, the Waking City
+	if (uiMapID == 12) or (uiMapID == 424) then
+		for _, childMapInfo in ipairs(mapChildren) do -- enum "current" map for children
+			if childMapInfo and childMapInfo.mapID and (childMapInfo.mapID == 1527 or childMapInfo.mapID == 1530) then
+				local dungeonEntrances = C_EncounterJournal.GetDungeonEntrancesForMap(childMapInfo.mapID); -- get Dungeon Entrances for current Map
+				for _, dungeonEntranceInfo in ipairs(dungeonEntrances) do -- enum "dungeonEntrances"
+					if dungeonEntranceInfo.journalInstanceID == 1180 then -- Ny'alotha, the Waking City
+						local entranceInfo = {}
+						
+						entranceInfo.areaPoiID = dungeonEntranceInfo.areaPoiID
+						local pos_vector = CreateVector2D(dungeonEntranceInfo.position.x, dungeonEntranceInfo.position.y)
+						if pos_vector then
+							local continentID, worldPosition = C_Map.GetWorldPosFromMapPos(childMapInfo.mapID, pos_vector)
+							if continentID and worldPosition then
+								local _, mapPosition = C_Map.GetMapPosFromWorldPos(continentID, worldPosition)
+								entranceInfo.position = CreateVector2D(mapPosition.x, mapPosition.y)
+							end
+						end		
+						
+						entranceInfo.name = dungeonEntranceInfo.name
+						entranceInfo.description = dungeonEntranceInfo.description
+						entranceInfo.journalInstanceID = dungeonEntranceInfo.journalInstanceID
+						entranceInfo.atlasName = dungeonEntranceInfo.atlasName
+						
+						print("\n")
+						DevTools_Dump(dungeonEntranceInfo)
+						local pin = self:GetMap():AcquirePin("IPAInstancePortalPinTemplate", entranceInfo);
+						pin.dataProvider = self;
+						pin:SetSuperTracked(false)
+						
+						if C_SuperTrack.IsSuperTrackingMapPin() then
+							local areaPoiID = pin.poiInfo.areaPoiID or 0;
+							local superTrackedMapPinType, superTrackedMapPinTypeID = C_SuperTrack.GetSuperTrackedMapPin()
+							if (superTrackedMapPinType == Enum.SuperTrackingMapPinType.AreaPOI) and (areaPoiID == superTrackedMapPinTypeID) then
+								pin:SetSuperTracked(true)
+							end
+						end
+						
+					end
+				end
+			end
+		end
 	end
 
-	if IPAUIPinDB[mapID] then
-		local count = #IPAUIPinDB[mapID]
+	-- IPA databse
+	if IPAUIPinDB[uiMapID] then
+		local count = #IPAUIPinDB[uiMapID]
 		local isContinent = false;
 		for i = 1, #IPAUIContinentMapDB do
-			if IPAUIContinentMapDB[i] == mapID then
+			if IPAUIContinentMapDB[i] == uiMapID then
 				isContinent = true;
 			end
 		end
@@ -60,7 +112,7 @@ function IPAInstancePortalMapDataProviderMixin:RefreshAllData(fromOnShow)
 		local playerFaction = UnitFactionGroup("player")
 
 		for i = 1, count do
-			local entranceInfo = IPAUIGetEntranceInfoForMapID(mapID, i);
+			local entranceInfo = IPAUIGetEntranceInfoForMapID(uiMapID, i);
 
 			if entranceInfo then
 				local factionWhitelist = entranceInfo["factionWhitelist"];
@@ -75,6 +127,15 @@ function IPAInstancePortalMapDataProviderMixin:RefreshAllData(fromOnShow)
 					if (isWhitelisted) then
 						local pin = self:GetMap():AcquirePin("IPAInstancePortalPinTemplate", entranceInfo);
 						pin.dataProvider = self;
+						pin:SetSuperTracked(false)
+
+						if C_SuperTrack.IsSuperTrackingMapPin() then
+							local areaPoiID = pin.poiInfo.areaPoiID or 0;
+							local superTrackedMapPinType, superTrackedMapPinTypeID = C_SuperTrack.GetSuperTrackedMapPin()
+							if (superTrackedMapPinType == Enum.SuperTrackingMapPinType.AreaPOI) and (areaPoiID == superTrackedMapPinTypeID) then
+								pin:SetSuperTracked(true)
+							end
+						end
 					end
 				end
 			end
@@ -107,21 +168,11 @@ local function AddTomTomWaypoint(mapID, x, y, title)
   end
 end
 
-
 --[[ Pin ]]--
 IPAInstancePortalProviderPinMixin = BaseMapPoiPinMixin:CreateSubPin("PIN_FRAME_LEVEL_DUNGEON_ENTRANCE");
 
 function IPAInstancePortalProviderPinMixin:OnAcquired(dungeonEntranceInfo) -- override
 	BaseMapPoiPinMixin.OnAcquired(self, dungeonEntranceInfo);
-
-	local poiInfo = self:GetPoiInfo();
-	self.poiInfo = poiInfo;
-	self:SetDataProvider(poiInfo.dataProvider);
-
-	self.hub = dungeonEntranceInfo.hub
-	self.tier = dungeonEntranceInfo.tier;
-	self.journalInstanceID = dungeonEntranceInfo.journalInstanceID;
-	self.isRaid = select(11, EJ_GetInstanceInfo(self.journalInstanceID));
 end
 
 function IPAInstancePortalProviderPinMixin:OnMouseClickAction(button)
@@ -141,10 +192,11 @@ function IPAInstancePortalProviderPinMixin:OnMouseClickAction(button)
 		IPAUIPrintDebug("IPAInstancePortalProviderPinMixin:OnMouseClickAction, button: "..tostring(button))
 		IPAUIPrintDebug("IPAInstancePortalProviderPinMixin:OnMouseClickAction, self.hub: "..tostring(self.hub))
 
+		local uiMapID = self:GetMap():GetMapID();
+		IPAUIPrintDebug("uiMapID: "..uiMapID)
+		if not uiMapID then return end
+
 		if self.hub == 0 then
-			local uiMapID = self:GetMap():GetMapID();
-			IPAUIPrintDebug("uiMapID: "..uiMapID)
-			if not uiMapID then return end
 
 			local journalInstanceID = self.journalInstanceID
 			IPAUIPrintDebug("self.journalInstanceID: "..journalInstanceID)
@@ -154,48 +206,48 @@ function IPAInstancePortalProviderPinMixin:OnMouseClickAction(button)
 			local mapChildren = C_Map.GetMapChildrenInfo(uiMapID, Enum.UIMapType.Zone) -- get current map children
 			if ( (type(mapChildren) ~= 'table') or (#mapChildren < 1) ) then return end -- mapChildren is not table or empty
 
+			--[[
 			if (journalInstanceID == 1179) then -- special case "The Eternal Palace"
 				local name = EJ_GetInstanceInfo(1179) or "The Eternal Palace"
-
-				wp_mapid = 1355
-				wp_x = (0.50369811058044)
-				wp_y = (0.12483072280884)
+				--wp_mapid = 1355
+				--wp_x = (0.50369811058044)
+				--wp_y = (0.12483072280884)
 				wp_name = name
 			else
-				for _, childMapInfo in ipairs(mapChildren) do -- enum "current" map for children
-					if childMapInfo and childMapInfo.mapID then
-						local dungeonEntrances = C_EncounterJournal.GetDungeonEntrancesForMap(childMapInfo.mapID); -- get Dungeon Entrances for current Map
-						for _, dungeonEntranceInfo in ipairs(dungeonEntrances) do -- enum "dungeonEntrances"
-							if dungeonEntranceInfo.journalInstanceID == journalInstanceID then -- found Dungeon with matching instanceID
-								IPAUIPrintDebug("InstanceID: "..journalInstanceID)
-								wp_mapid = childMapInfo.mapID
-								wp_x = dungeonEntranceInfo.position.x
-								wp_y = dungeonEntranceInfo.position.y
-								wp_name = dungeonEntranceInfo.name or "Waypoint"
-								IPAUIPrintDebug("childMapInfo.mapID: "..childMapInfo.mapID)
-								IPAUIPrintDebug("dungeonEntranceInfo.name: "..dungeonEntranceInfo.name)
-								IPAUIPrintDebug("dungeonEntranceInfo.position.x: "..dungeonEntranceInfo.position.x)
-								IPAUIPrintDebug("dungeonEntranceInfo.position.y: "..dungeonEntranceInfo.position.y)
-							end
+			]]
+			for _, childMapInfo in ipairs(mapChildren) do -- enum "current" map for children
+				if childMapInfo and childMapInfo.mapID then
+					local dungeonEntrances = C_EncounterJournal.GetDungeonEntrancesForMap(childMapInfo.mapID); -- get Dungeon Entrances for current Map
+					for _, dungeonEntranceInfo in ipairs(dungeonEntrances) do -- enum "dungeonEntrances"
+						if dungeonEntranceInfo.journalInstanceID == journalInstanceID then -- found Dungeon with matching instanceID
+							IPAUIPrintDebug("InstanceID: "..journalInstanceID)
+							wp_mapid = childMapInfo.mapID
+							wp_x = dungeonEntranceInfo.position.x
+							wp_y = dungeonEntranceInfo.position.y
+							wp_name = dungeonEntranceInfo.name or "Waypoint"
+							if (not self.areaPOIID) then self.areaPOIID = dungeonEntranceInfo.areaPoiID or 0 end
+							IPAUIPrintDebug("childMapInfo.mapID: "..childMapInfo.mapID)
+							IPAUIPrintDebug("dungeonEntranceInfo.name: "..dungeonEntranceInfo.name)
+							IPAUIPrintDebug("dungeonEntranceInfo.position.x: "..dungeonEntranceInfo.position.x)
+							IPAUIPrintDebug("dungeonEntranceInfo.position.y: "..dungeonEntranceInfo.position.y)
 						end
 					end
 				end
 			end
 
-			-- if anything is missing, TRY to use Pin itself as Source
-			if (not wp_mapid) or (not wp_x) or (not wp_y) or (not wp_name) then
+			-- if anything is missing, TRY to use Pin itself as Source			
+			if not (wp_mapid and wp_x and wp_y and wp_name) then
 				IPAUIPrintDebug("Waypoint Info is missing, try to use PIN as Source")
-				if (not wp_mapid) then IPAUIPrintDebug("Missing: wp_mapid") end
-				if (not wp_x) then IPAUIPrintDebug("Missing: wp_x") end
-				if (not wp_y) then IPAUIPrintDebug("Missing: wp_y") end
-				if (not wp_name) then	IPAUIPrintDebug("Missing: wp_name")	end
+				for k, v in pairs({wp_mapid="wp_mapid", wp_x="wp_x", wp_y="wp_y", wp_name="wp_name"}) do
+						if not k then IPAUIPrintDebug("Missing: " .. v) end
+				end
 
-				wp_mapid = self:GetMap():GetMapID();
+				wp_mapid = self:GetMap():GetMapID()
 				wp_x, wp_y = self:GetPosition()
 				wp_name = self.name or "Waypoint"
-			end
+		end
 
-		else -- if self.hub ~= 0, try to use Map Pin itself as Source
+		else -- if self.hub ~= 0
 			wp_mapid = self:GetMap():GetMapID();
 			wp_x, wp_y = self:GetPosition()
 			wp_name = self.name or "Waypoint"
@@ -204,12 +256,24 @@ function IPAInstancePortalProviderPinMixin:OnMouseClickAction(button)
 		IPAUIPrintDebug("\nWaypoint Info:\n  MapID: "..wp_mapid.."\n  X: "..wp_x.."\n  Y: "..wp_y.."\n  Name: "..wp_name.."\n  System: "..(useTomTom and "TomTom" or "Blizzard").."\n")
 
 		if useTomTomContinent ~= true then
-			AddNativeWaypoint(wp_mapid, wp_x, wp_y)
+			local _, areaPoiID = self:GetSuperTrackData()
+			if areaPoiID and areaPoiID > 0 then
+				if self:IsSuperTracked() then
+					C_SuperTrack.ClearAllSuperTracked();
+					PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_OFF);
+				else
+					PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
+					C_SuperTrack.SetSuperTrackedMapPin(self:GetSuperTrackData())
+				end
+			else
+				AddNativeWaypoint(wp_mapid, wp_x, wp_y)
+			end
 		else
 			AddTomTomWaypoint(wp_mapid, wp_x, wp_y, wp_name)
 		end
 
 	elseif (button == "RightButton") then
+		IPAUIPrintDebug("journalInstanceID: "..tostring(self.journalInstanceID))
 		EncounterJournal_LoadUI();
 		EncounterJournal_OpenJournal(nil, self.journalInstanceID);
 	end
@@ -266,6 +330,7 @@ local function WaypointDungeonEntrancePinMixin(self, button)
 			SuperTrackablePinMixin.OnMouseClickAction(self, button);
 		end
 	elseif button == "RightButton" then
+		IPAUIPrintDebug("journalInstanceID: "..tostring(self.journalInstanceID))
 		EncounterJournal_LoadUI();
 		EncounterJournal_OpenJournal(nil, self.journalInstanceID);
 	end

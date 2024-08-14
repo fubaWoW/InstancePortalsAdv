@@ -12,7 +12,7 @@ IPAUIPinDB = {
 		{51.370823, 91.793716, {70}}, -- Halls of Origination
 		{49.928331, 93.700117, {69}}, -- Lost City of the Tol'vir
 		{52.651453, 97.099590, {68}}, -- The Vortex Pinnacle
-		{49.029613, 90.299171, {1180}}, -- Ny'alotha, the Waking City
+		--{49.029613, 90.299171, {1180}}, -- Ny'alotha, the Waking City
 		{42.288864, 84.485090, {743}}, -- Ruins of Ahn'Qiraj
 		{40.952015, 83.741444, {744}}, -- Temple of Ahn'Qiraj
 		{45.970976, 96.607947, {74}}, -- Throne of the Four Winds
