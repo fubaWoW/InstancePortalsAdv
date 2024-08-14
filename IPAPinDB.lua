@@ -467,8 +467,8 @@ IPAUIPinDB = {
 		{45.5, 65.4, {777}}, --Assault on Violet Hold
 		--{64, 38, {721,861}, "Halls of Valor"}, --Trial of Valor
 
-		{90, 10, {945}}, --Seat of the Triumvirate
-		{83, 22, {946}}, --Antorus, the Burning Throne
+		--{90, 10, {945}}, --Seat of the Triumvirate
+		--{83, 22, {946}}, --Antorus, the Burning Throne
 
 		{47.082645, 47.276622, {786}}, -- The Nighthold
 		{49.157399, 49.704754, {800}}, -- Court of Stars
@@ -503,9 +503,9 @@ IPAUIPinDB = {
 
 	[905]={
 		-- Antoran Wastes
-		{22.51, 81.39, {946}}, -- Antorus, the Burning Throne
+		{32.00, 68.00, {946}}, -- Antorus, the Burning Throne
 		-- Eredath
-		{31.67, 36.24, {945}}, -- Seat of the Triumvirate
+		{54.00, 39.00, {945}}, -- Seat of the Triumvirate
 	},
 
 

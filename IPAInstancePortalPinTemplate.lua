@@ -43,55 +43,111 @@ function IPAInstancePortalMapDataProviderMixin:RefreshAllData(fromOnShow)
 
 	local mapInfo = C_Map.GetMapInfo(uiMapID);
 	IPAUIPrintDebug("mapInfo.mapType: "..tostring(mapInfo.mapType))
-	if not mapInfo then return end	
+	if not mapInfo then return end
 	if mapInfo.mapType ~= Enum.UIMapType.Continent then return end
-	
-	-- from here to generate every map pin from Wow internal information
-	local mapChildren = C_Map.GetMapChildrenInfo(uiMapID, Enum.UIMapType.Zone) -- get current map children
-	if ( (type(mapChildren) ~= 'table') or (#mapChildren < 1) ) then return end -- mapChildren is not table or empty
 
 	-- special case: Ny'alotha, the Waking City
 	if (uiMapID == 12) or (uiMapID == 424) then
-		for _, childMapInfo in ipairs(mapChildren) do -- enum "current" map for children
-			if childMapInfo and childMapInfo.mapID and (childMapInfo.mapID == 1527 or childMapInfo.mapID == 1530) then
-				local dungeonEntrances = C_EncounterJournal.GetDungeonEntrancesForMap(childMapInfo.mapID); -- get Dungeon Entrances for current Map
-				for _, dungeonEntranceInfo in ipairs(dungeonEntrances) do -- enum "dungeonEntrances"
-					if dungeonEntranceInfo.journalInstanceID == 1180 then -- Ny'alotha, the Waking City
-						local entranceInfo = {}
-						
-						entranceInfo.areaPoiID = dungeonEntranceInfo.areaPoiID
-						local pos_vector = CreateVector2D(dungeonEntranceInfo.position.x, dungeonEntranceInfo.position.y)
-						if pos_vector then
-							local continentID, worldPosition = C_Map.GetWorldPosFromMapPos(childMapInfo.mapID, pos_vector)
-							if continentID and worldPosition then
-								local _, mapPosition = C_Map.GetMapPosFromWorldPos(continentID, worldPosition)
-								entranceInfo.position = CreateVector2D(mapPosition.x, mapPosition.y)
+		local mapChildren = C_Map.GetMapChildrenInfo(uiMapID, Enum.UIMapType.Zone) -- get current map children
+		if ( (type(mapChildren) == 'table') or (#mapChildren > 0) ) then -- mapChildren is table amd not empty
+			for _, childMapInfo in ipairs(mapChildren) do -- enum "current" map for children
+				if childMapInfo and childMapInfo.mapID and (childMapInfo.mapID == 1527 or childMapInfo.mapID == 1530) then
+					local dungeonEntrances = C_EncounterJournal.GetDungeonEntrancesForMap(childMapInfo.mapID); -- get Dungeon Entrances for current Map
+					for _, dungeonEntranceInfo in ipairs(dungeonEntrances) do -- enum "dungeonEntrances"
+						if dungeonEntranceInfo.journalInstanceID == 1180 then -- Ny'alotha, the Waking City
+							local entranceInfo = {}
+
+							entranceInfo.areaPoiID = dungeonEntranceInfo.areaPoiID
+							local pos_vector = CreateVector2D(dungeonEntranceInfo.position.x, dungeonEntranceInfo.position.y)
+							if pos_vector then
+								local continentID, worldPosition = C_Map.GetWorldPosFromMapPos(childMapInfo.mapID, pos_vector)
+								if continentID and worldPosition then
+									local _, mapPosition = C_Map.GetMapPosFromWorldPos(continentID, worldPosition)
+									entranceInfo.position = CreateVector2D(mapPosition.x, mapPosition.y)
+								end
 							end
-						end		
-						
-						entranceInfo.name = dungeonEntranceInfo.name
-						entranceInfo.description = dungeonEntranceInfo.description
-						entranceInfo.journalInstanceID = dungeonEntranceInfo.journalInstanceID
-						entranceInfo.atlasName = dungeonEntranceInfo.atlasName
-						
-						print("\n")
-						DevTools_Dump(dungeonEntranceInfo)
-						local pin = self:GetMap():AcquirePin("IPAInstancePortalPinTemplate", entranceInfo);
-						pin.dataProvider = self;
-						pin:SetSuperTracked(false)
-						
-						if C_SuperTrack.IsSuperTrackingMapPin() then
-							local areaPoiID = pin.poiInfo.areaPoiID or 0;
-							local superTrackedMapPinType, superTrackedMapPinTypeID = C_SuperTrack.GetSuperTrackedMapPin()
-							if (superTrackedMapPinType == Enum.SuperTrackingMapPinType.AreaPOI) and (areaPoiID == superTrackedMapPinTypeID) then
-								pin:SetSuperTracked(true)
+
+							entranceInfo.name = dungeonEntranceInfo.name
+							entranceInfo.description = dungeonEntranceInfo.description
+							entranceInfo.journalInstanceID = dungeonEntranceInfo.journalInstanceID
+							entranceInfo.atlasName = dungeonEntranceInfo.atlasName
+
+							local pin = self:GetMap():AcquirePin("IPAInstancePortalPinTemplate", entranceInfo);
+							pin.dataProvider = self;
+							pin:SetSuperTracked(false)
+
+							if C_SuperTrack.IsSuperTrackingMapPin() then
+								local areaPoiID = pin.poiInfo.areaPoiID or 0;
+								local superTrackedMapPinType, superTrackedMapPinTypeID = C_SuperTrack.GetSuperTrackedMapPin()
+								if (superTrackedMapPinType == Enum.SuperTrackingMapPinType.AreaPOI) and (areaPoiID == superTrackedMapPinTypeID) then
+									pin:SetSuperTracked(true)
+								end
 							end
+
 						end
-						
 					end
 				end
 			end
 		end
+	end
+
+	-- special case: Antorus, The Burning Throne and Seat of the Triumvirate (Broken Isles Continent Map)
+	-- this is just temporary and will get changed soon... hopefuilly! :D	
+	if (uiMapID == 619) then
+		local dungeonEntrances = C_EncounterJournal.GetDungeonEntrancesForMap(882); -- Zone: Eredat		
+		for _, dungeonEntranceInfo in ipairs(dungeonEntrances) do
+			if dungeonEntranceInfo.journalInstanceID == 945 then -- Seat of the Triumvirate
+				local entranceInfo = {}
+				entranceInfo.areaPoiID = dungeonEntranceInfo.areaPoiID
+				
+				entranceInfo.position = CreateVector2D(90/100, 10/100) -- fixed value (for now?)
+				
+				entranceInfo.name = dungeonEntranceInfo.name
+				entranceInfo.description = dungeonEntranceInfo.description
+				entranceInfo.journalInstanceID = dungeonEntranceInfo.journalInstanceID
+				entranceInfo.atlasName = dungeonEntranceInfo.atlasName
+				
+				local pin = self:GetMap():AcquirePin("IPAInstancePortalPinTemplate", entranceInfo);
+				pin.dataProvider = self;
+				pin:SetSuperTracked(false)
+
+				if C_SuperTrack.IsSuperTrackingMapPin() then
+					local areaPoiID = pin.poiInfo.areaPoiID or 0;
+					local superTrackedMapPinType, superTrackedMapPinTypeID = C_SuperTrack.GetSuperTrackedMapPin()
+					if (superTrackedMapPinType == Enum.SuperTrackingMapPinType.AreaPOI) and (areaPoiID == superTrackedMapPinTypeID) then
+						pin:SetSuperTracked(true)
+					end
+				end
+			end
+		end
+		
+		dungeonEntrances = C_EncounterJournal.GetDungeonEntrancesForMap(885); -- Zone: Antoran Wastes
+		for _, dungeonEntranceInfo in ipairs(dungeonEntrances) do
+			if dungeonEntranceInfo.journalInstanceID == 946 then -- Seat of the Triumvirate
+				local entranceInfo = {}
+				entranceInfo.areaPoiID = dungeonEntranceInfo.areaPoiID
+				
+				entranceInfo.position = CreateVector2D(83/100, 22/100) -- fixed value (for now?)
+				
+				entranceInfo.name = dungeonEntranceInfo.name
+				entranceInfo.description = dungeonEntranceInfo.description
+				entranceInfo.journalInstanceID = dungeonEntranceInfo.journalInstanceID
+				entranceInfo.atlasName = dungeonEntranceInfo.atlasName
+				
+				local pin = self:GetMap():AcquirePin("IPAInstancePortalPinTemplate", entranceInfo);
+				pin.dataProvider = self;
+				pin:SetSuperTracked(false)
+
+				if C_SuperTrack.IsSuperTrackingMapPin() then
+					local areaPoiID = pin.poiInfo.areaPoiID or 0;
+					local superTrackedMapPinType, superTrackedMapPinTypeID = C_SuperTrack.GetSuperTrackedMapPin()
+					if (superTrackedMapPinType == Enum.SuperTrackingMapPinType.AreaPOI) and (areaPoiID == superTrackedMapPinTypeID) then
+						pin:SetSuperTracked(true)
+					end
+				end
+			end
+		end
+		
 	end
 
 	-- IPA databse
@@ -235,7 +291,7 @@ function IPAInstancePortalProviderPinMixin:OnMouseClickAction(button)
 				end
 			end
 
-			-- if anything is missing, TRY to use Pin itself as Source			
+			-- if anything is missing, TRY to use Pin itself as Source
 			if not (wp_mapid and wp_x and wp_y and wp_name) then
 				IPAUIPrintDebug("Waypoint Info is missing, try to use PIN as Source")
 				for k, v in pairs({wp_mapid="wp_mapid", wp_x="wp_x", wp_y="wp_y", wp_name="wp_name"}) do
