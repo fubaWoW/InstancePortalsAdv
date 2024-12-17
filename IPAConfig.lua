@@ -21,7 +21,7 @@ function CreateSettings()
 	
 	IPASettings = IPASettings and IPASettings.options and IPASettings or IPA.DefaultSettings
 
-	local categoryMain = Settings.RegisterVerticalLayoutCategory("|rInstance Portals |cff0080ffAdvanced|r");
+	local categoryMain = Settings.RegisterVerticalLayoutCategory("Instance Portals |cff0080ffAdvanced|r");
 	categoryMain.ID = addonName
 	
 	local function OnSettingChanged(setting, value)
