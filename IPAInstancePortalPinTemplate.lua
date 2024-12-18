@@ -203,10 +203,11 @@ function IPAInstancePortalProviderPinMixin:OnMouseClickAction(button)
 		end
 
 	elseif button == "RightButton" then
-		print("journalInstanceID: " .. tostring(self.journalInstanceID))
-		IPA:DebugPrint("journalInstanceID: " .. tostring(self.journalInstanceID))
+		local journalInstanceID = self.journalInstanceID or self.poiInfo.journalInstanceID
+		--print("journalInstanceID: " .. tostring(self.journalInstanceID))
+		IPA:DebugPrint("journalInstanceID: " .. tostring(journalInstanceID))
 		EncounterJournal_LoadUI()
-		EncounterJournal_OpenJournal(nil, self.journalInstanceID)
+		EncounterJournal_OpenJournal(nil, journalInstanceID)
 	end
 end
 
