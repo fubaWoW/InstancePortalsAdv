@@ -1,4 +1,4 @@
-## Interface: 110207
+## Interface: 120001, 120000, 110207
 ## Version: @project-version@
 ## Author: fuba
 ## IconTexture: Interface\AddOns\InstancePortalsAdv\fubaLogo
@@ -7,6 +7,10 @@
 ## SavedVariables: IPASettings
 
 ## X-Curse-Project-ID: 721768
+
+## X-Category: |cffff8000fuba
+## Category-enUS: |cffff8000fuba
+## Category-deDE: |cffff8000fuba
 
 IPACore.lua
 IPAConfig.lua
