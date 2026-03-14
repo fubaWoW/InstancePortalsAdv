@@ -261,9 +261,9 @@ local function PatchDelveEntrancePins()
 end
 
 hooksecurefunc(WorldMapFrame, "OnMapChanged", function()
-    --C_Timer.After(0, PatchDelveEntrancePins)
+    C_Timer.After(0, PatchDelveEntrancePins)
 end)
 
 WorldMapFrame:HookScript("OnShow", function()
-    --C_Timer.After(0, PatchDelveEntrancePins)
+    C_Timer.After(0, PatchDelveEntrancePins)
 end)
