@@ -340,9 +340,9 @@ local function PatchDungeonEntrancePins()
 end
 
 hooksecurefunc(WorldMapFrame, "OnMapChanged", function()
-    C_Timer.After(0, PatchDungeonEntrancePins)
+    --C_Timer.After(0, PatchDungeonEntrancePins)
 end)
 
 WorldMapFrame:HookScript("OnShow", function()
-    C_Timer.After(0, PatchDungeonEntrancePins)
+   -- C_Timer.After(0, PatchDungeonEntrancePins)
 end)

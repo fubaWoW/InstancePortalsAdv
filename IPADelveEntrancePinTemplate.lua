@@ -25,9 +25,6 @@ function IPADelveMapDataProviderMixin:OnEvent(event, ...)
     end
 end
 
--- Required by AreaPOIPinMixin
-function IPADelveMapDataProviderMixin:GetBountyInfo() return nil end
-
 local function DoDelveRefresh(self)
 	self:RemoveAllData()
 
@@ -97,20 +94,20 @@ local function DoDelveRefresh(self)
                     end
 
                     if not override then
-                        local poiInfo = C_AreaPoiInfo.GetAreaPOIInfo(mapID, areaPoiID)
-                        if poiInfo then
-                            local pos_vector = CreateVector2D(poiInfo.position:GetXY())
-                            local continentID, worldPosition = C_Map.GetWorldPosFromMapPos(mapID, pos_vector)
-                            local _, mapPosition = C_Map.GetMapPosFromWorldPos(continentID, worldPosition, uiMapID)
-                            if mapPosition then
-                                poiInfo.position:SetXY(mapPosition.x, mapPosition.y)
-                                poiInfo.dataProvider = self
-                                CreatePin(poiInfo)
-                            end
-                            -- nil = different world coordinate system, skip silently
-                            -- add as special pin manually if needed
-                        end
-                    end
+						local poiInfo = C_AreaPoiInfo.GetAreaPOIInfo(mapID, areaPoiID)
+						if poiInfo then
+							local pos_vector = CreateVector2D(poiInfo.position:GetXY())
+							local continentID, worldPosition = C_Map.GetWorldPosFromMapPos(mapID, pos_vector)
+							local _, mapPosition = C_Map.GetMapPosFromWorldPos(continentID, worldPosition, uiMapID)
+							if mapPosition then
+								-- Create a COPY, never modify original poiInfo!
+								local poiInfoCopy = CopyTable(poiInfo)
+								poiInfoCopy.position = CreateVector2D(mapPosition.x, mapPosition.y)
+								poiInfoCopy.dataProvider = self
+								CreatePin(poiInfoCopy)
+							end
+						end
+					end
                 end
             end
         end
@@ -123,11 +120,11 @@ local function DoDelveRefresh(self)
                 C_AreaPoiInfo.GetAreaPOIInfo(specialPinData.instanceZone, specialPinData.areaPoiID)
 
             if poiInfo then
-                -- Position is already in continent coordinates, set directly
-                poiInfo.position:SetXY(specialPinData.x, specialPinData.y)
-                poiInfo.dataProvider = self
-                CreatePin(poiInfo, specialPinData)
-            end
+				local poiInfoCopy = CopyTable(poiInfo)
+				poiInfoCopy.position = CreateVector2D(specialPinData.x, specialPinData.y)
+				poiInfoCopy.dataProvider = self
+				CreatePin(poiInfoCopy, specialPinData)
+			end
         end
     end
 end
@@ -162,7 +159,7 @@ local function AddTomTomWaypoint(mapID, x, y, title)
 end
 
 -- Pin definition
-IPADelveProviderPinMixin = AreaPOIPinMixin:CreateSubPin("PIN_FRAME_LEVEL_DELVE_ENTRANCE")
+IPADelveProviderPinMixin = BaseMapPoiPinMixin:CreateSubPin("PIN_FRAME_LEVEL_DELVE_ENTRANCE")
 
 -- Taint fixes
 function IPADelveProviderPinMixin:SetPassThroughButtons() end
@@ -171,7 +168,7 @@ function IPADelveProviderPinMixin:DoesMapTypeAllowSuperTrack() return true end
 function IPADelveProviderPinMixin:GetSuperTrackMarkerOffset() return -7, 7 end
 
 function IPADelveProviderPinMixin:OnAcquired(poiInfo)
-    AreaPOIPinMixin.OnAcquired(self, poiInfo)
+    BaseMapPoiPinMixin.OnAcquired(self, poiInfo)
 end
 
 function IPADelveProviderPinMixin:OnMouseClickAction(button)
@@ -264,9 +261,9 @@ local function PatchDelveEntrancePins()
 end
 
 hooksecurefunc(WorldMapFrame, "OnMapChanged", function()
-    C_Timer.After(0, PatchDelveEntrancePins)
+    --C_Timer.After(0, PatchDelveEntrancePins)
 end)
 
 WorldMapFrame:HookScript("OnShow", function()
-    C_Timer.After(0, PatchDelveEntrancePins)
+    --C_Timer.After(0, PatchDelveEntrancePins)
 end)
