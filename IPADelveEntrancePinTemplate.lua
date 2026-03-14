@@ -2,6 +2,7 @@ local addonName, IPA = ...
 
 local delveRefreshTimer
 
+-- DataProvider
 IPADelveMapDataProviderMixin = CreateFromMixins(MapCanvasDataProviderMixin)
 
 function IPADelveMapDataProviderMixin:RemoveAllData()
@@ -10,30 +11,48 @@ end
 
 function IPADelveMapDataProviderMixin:OnShow()
     self:RegisterEvent("CVAR_UPDATE")
+    self:RegisterEvent("SUPER_TRACKING_CHANGED")
 end
 
 function IPADelveMapDataProviderMixin:OnHide()
     self:UnregisterEvent("CVAR_UPDATE")
+    self:UnregisterEvent("SUPER_TRACKING_CHANGED")
 end
 
 function IPADelveMapDataProviderMixin:OnEvent(event, ...)
     if event == "CVAR_UPDATE" then
-        local eventName, value = ...
+        local eventName = ...
         if eventName == "showDelveEntrancesOnMap" then
             self:RefreshAllData()
         end
+    elseif event == "SUPER_TRACKING_CHANGED" then
+        self:OnSuperTrackingChanged()
+    end
+end
+
+function IPADelveMapDataProviderMixin:OnSuperTrackingChanged()
+    for pin in self:GetMap():EnumeratePinsByTemplate("IPADelveEntrancePinTemplate") do
+        local isTracked = false
+        if C_SuperTrack.IsSuperTrackingMapPin() then
+            local pinType, pinID = C_SuperTrack.GetSuperTrackedMapPin()
+            if pinType == Enum.SuperTrackingMapPinType.AreaPOI
+            and pin.areaPoiID and pin.areaPoiID > 0
+            and pinID == pin.areaPoiID then
+                isTracked = true
+            end
+        end
+        pin:SetSuperTracked(isTracked)
     end
 end
 
 local function DoDelveRefresh(self)
-	self:RemoveAllData()
+    self:RemoveAllData()
 
     local map = self:GetMap()
     local uiMapID = map and map:GetMapID()
     if not uiMapID then return end
-	
-	if IPA.mapBlacklist_Delve and IPA.mapBlacklist_Delve[uiMapID] then return end
-	
+
+    if IPA.mapBlacklist_Delve and IPA.mapBlacklist_Delve[uiMapID] then return end
     if not (C_CVar and C_CVar.GetCVarBool("showDelveEntrancesOnMap")) then return end
 
     local showPins = IPASettings and IPASettings.options and IPASettings.options.showOwnDelvePins or false
@@ -50,22 +69,36 @@ local function DoDelveRefresh(self)
     local specialPinsForMap = IPA.specialPin_Delve and IPA.specialPin_Delve[uiMapID]
     if #mapChildren == 0 and not specialPinsForMap then return end
 
-    -- Function to create and add pins
     local function CreatePin(info, waypoint)
         local pin = self:GetMap():AcquirePin("IPADelveEntrancePinTemplate", info)
+        pin:UseFrameLevelType("PIN_FRAME_LEVEL_DELVE_ENTRANCE")
         pin.dataProvider = self
-        pin:SetSuperTracked(false)
+
+        -- Store everything needed
+        pin.areaPoiID = info.areaPoiID or 0
+        pin.name = info.name or UNKNOWN
+        pin.description = info.description or ""
+        pin.isSpecialPin = info.isSpecialPin or false
+        pin.sourceMapID = info.sourceMapID
+        pin.nativePinX = info.nativePinX
+        pin.nativePinY = info.nativePinY
 
         if waypoint then
-            pin.waypoint = CreateVector2D(waypoint.wpx, waypoint.wpy)
-            pin.waypoint.zone = waypoint.wpzone
-            pin.waypoint.name = waypoint.wpname
+            pin.waypoint = {
+                zone = waypoint.wpzone,
+                x = waypoint.wpx,
+                y = waypoint.wpy,
+                name = waypoint.wpname
+            }
         end
 
+        -- Set initial supertrack state
+        pin:SetSuperTracked(false)
         if C_SuperTrack.IsSuperTrackingMapPin() then
-            local areaPoiID = pin.poiInfo and pin.poiInfo.areaPoiID or 0
-            local superTrackedMapPinType, superTrackedMapPinTypeID = C_SuperTrack.GetSuperTrackedMapPin()
-            if superTrackedMapPinType == Enum.SuperTrackingMapPinType.AreaPOI and areaPoiID == superTrackedMapPinTypeID then
+            local pinType, pinID = C_SuperTrack.GetSuperTrackedMapPin()
+            if pinType == Enum.SuperTrackingMapPinType.AreaPOI
+            and pin.areaPoiID > 0
+            and pinID == pin.areaPoiID then
                 pin:SetSuperTracked(true)
             end
         end
@@ -94,20 +127,23 @@ local function DoDelveRefresh(self)
                     end
 
                     if not override then
-						local poiInfo = C_AreaPoiInfo.GetAreaPOIInfo(mapID, areaPoiID)
-						if poiInfo then
-							local pos_vector = CreateVector2D(poiInfo.position:GetXY())
-							local continentID, worldPosition = C_Map.GetWorldPosFromMapPos(mapID, pos_vector)
-							local _, mapPosition = C_Map.GetMapPosFromWorldPos(continentID, worldPosition, uiMapID)
-							if mapPosition then
-								-- Create a COPY, never modify original poiInfo!
-								local poiInfoCopy = CopyTable(poiInfo)
-								poiInfoCopy.position = CreateVector2D(mapPosition.x, mapPosition.y)
-								poiInfoCopy.dataProvider = self
-								CreatePin(poiInfoCopy)
-							end
-						end
-					end
+                        local poiInfo = C_AreaPoiInfo.GetAreaPOIInfo(mapID, areaPoiID)
+                        if poiInfo then
+                            local pos_vector = CreateVector2D(poiInfo.position:GetXY())
+                            local continentID, worldPosition = C_Map.GetWorldPosFromMapPos(mapID, pos_vector)
+                            local _, mapPosition = C_Map.GetMapPosFromWorldPos(continentID, worldPosition, uiMapID)
+                            if mapPosition then
+                                local poiInfoCopy = CopyTable(poiInfo)
+                                poiInfoCopy.position = CreateVector2D(mapPosition.x, mapPosition.y)
+                                poiInfoCopy.dataProvider = self
+                                poiInfoCopy.isSpecialPin = false
+                                poiInfoCopy.sourceMapID = mapID
+                                poiInfoCopy.nativePinX = poiInfo.position.x
+                                poiInfoCopy.nativePinY = poiInfo.position.y
+                                CreatePin(poiInfoCopy)
+                            end
+                        end
+                    end
                 end
             end
         end
@@ -120,11 +156,15 @@ local function DoDelveRefresh(self)
                 C_AreaPoiInfo.GetAreaPOIInfo(specialPinData.instanceZone, specialPinData.areaPoiID)
 
             if poiInfo then
-				local poiInfoCopy = CopyTable(poiInfo)
-				poiInfoCopy.position = CreateVector2D(specialPinData.x, specialPinData.y)
-				poiInfoCopy.dataProvider = self
-				CreatePin(poiInfoCopy, specialPinData)
-			end
+                local poiInfoCopy = CopyTable(poiInfo)
+                poiInfoCopy.position = CreateVector2D(specialPinData.x, specialPinData.y)
+                poiInfoCopy.dataProvider = self
+                poiInfoCopy.isSpecialPin = true
+                poiInfoCopy.sourceMapID = specialPinData.instanceZone
+                poiInfoCopy.nativePinX = poiInfo.position.x
+                poiInfoCopy.nativePinY = poiInfo.position.y
+                CreatePin(poiInfoCopy, specialPinData)
+            end
         end
     end
 end
@@ -137,7 +177,7 @@ function IPADelveMapDataProviderMixin:RefreshAllData(fromOnShow)
     end)
 end
 
--- Add Waypoints
+-- Add native waypoint
 local function AddNativeWaypoint(mapID, x, y)
     if C_Map.CanSetUserWaypointOnMap(mapID) then
         C_Map.SetUserWaypoint(UiMapPoint.CreateFromCoordinates(mapID, x, y))
@@ -146,124 +186,109 @@ local function AddNativeWaypoint(mapID, x, y)
     end
 end
 
-local function AddTomTomWaypoint(mapID, x, y, title)
-    if TomTom then
-        TomTom:AddWaypoint(mapID, x, y, {
-            title = title or "Waypoint",
-            persistent = false,
-            minimap = true,
-            world = true,
-            from = addonName or "InstancePortalsAdvanced"
-        })
+-- Pin Mixin - inherits from MapCanvasPinMixin for all required methods
+-- Only taint-prone methods are overridden
+IPADelveProviderPinMixin = CreateFromMixins(MapCanvasPinMixin)
+
+-- Override to prevent taint
+function IPADelveProviderPinMixin:CheckMouseButtonPassthrough(button) end
+function IPADelveProviderPinMixin:SetPassThroughButtons(...) end
+function IPADelveProviderPinMixin:UpdateMousePropagation() end
+
+function IPADelveProviderPinMixin:OnLoad()
+    self.superTracked = false
+end
+
+function IPADelveProviderPinMixin:OnAcquired(info)
+    -- Set icon via atlas
+    if info and info.atlasName then
+        self.Texture:SetAtlas(info.atlasName, true)
+        self.HighlightTexture:SetAtlas(info.atlasName, true)
+    end
+    self.SuperTrackGlow:Hide()
+    self.SuperTrackMarker:Hide()
+    self.superTracked = false
+
+    -- Set position via map system
+    if info and info.position then
+        self:SetPosition(info.position.x, info.position.y)
+    end
+
+    -- Set scaling
+    self:SetScalingLimits(1, 1, 1.2)
+end
+
+function IPADelveProviderPinMixin:OnReleased()
+    self.SuperTrackGlow:Hide()
+    self.SuperTrackMarker:Hide()
+    self.superTracked = false
+end
+
+function IPADelveProviderPinMixin:SetSuperTracked(tracked)
+    self.superTracked = tracked
+    if tracked then
+        self.SuperTrackGlow:SetSize(40, 40)
+        self.SuperTrackGlow:Show()
+        self.SuperTrackMarker:Show()
+    else
+        self.SuperTrackGlow:Hide()
+        self.SuperTrackMarker:Hide()
     end
 end
 
--- Pin definition
-IPADelveProviderPinMixin = BaseMapPoiPinMixin:CreateSubPin("PIN_FRAME_LEVEL_DELVE_ENTRANCE")
+function IPADelveProviderPinMixin:IsSuperTracked()
+    return self.superTracked or false
+end
 
--- Taint fixes
-function IPADelveProviderPinMixin:SetPassThroughButtons() end
-function IPADelveProviderPinMixin:UpdateMousePropagation() end
-function IPADelveProviderPinMixin:DoesMapTypeAllowSuperTrack() return true end
-function IPADelveProviderPinMixin:GetSuperTrackMarkerOffset() return -7, 7 end
+function IPADelveProviderPinMixin:OnMouseEnter()
+    local tooltip = GetAppropriateTooltip()
+    tooltip:SetOwner(self, "ANCHOR_RIGHT")
+    GameTooltip_SetTitle(tooltip, self.name or UNKNOWN)
+    if self.description and self.description ~= "" then
+        GameTooltip_AddNormalLine(tooltip, self.description)
+    end
+    tooltip:Show()
+end
 
-function IPADelveProviderPinMixin:OnAcquired(poiInfo)
-    BaseMapPoiPinMixin.OnAcquired(self, poiInfo)
+function IPADelveProviderPinMixin:OnMouseLeave()
+    GetAppropriateTooltip():Hide()
 end
 
 function IPADelveProviderPinMixin:OnMouseClickAction(button)
     if not button then return end
 
-    local useTomTom = IPASettings and (IPASettings.options.useTomTomDelve == true) and (TomTom ~= nil)
-
     if button == "LeftButton" then
-        local _, areaPoiID = self:GetSuperTrackData()
-        if areaPoiID and (areaPoiID > 0) and (not useTomTom) then
-            if self:IsSuperTracked() then
-                C_SuperTrack.ClearAllSuperTracked()
-                PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_OFF)
-            else
-                PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
-                C_SuperTrack.SetSuperTrackedMapPin(self:GetSuperTrackData())
-            end
-        else
-            local wp_mapid, wp_x, wp_y, wp_name
-            local uiMapID = self:GetMap():GetMapID()
-            if not uiMapID then return end
+        local areaPoiID = self.areaPoiID
 
-            local areaPoiID = self.poiInfo and self.poiInfo.areaPoiID
-
-            -- Find matching delve entrance in child maps
-            for _, childMapInfo in ipairs(C_Map.GetMapChildrenInfo(uiMapID, Enum.UIMapType.Zone) or {}) do
-                for _, poiID in ipairs(C_AreaPoiInfo.GetDelvesForMap(childMapInfo.mapID) or {}) do
-                    if poiID == areaPoiID then
-                        local poiInfo = C_AreaPoiInfo.GetAreaPOIInfo(childMapInfo.mapID, poiID)
-                        if poiInfo then
-                            wp_mapid = childMapInfo.mapID
-                            wp_x = poiInfo.position.x
-                            wp_y = poiInfo.position.y
-                            wp_name = poiInfo.name or _G.DELVE_LABEL
-                        end
-                        break
-                    end
+        if areaPoiID and areaPoiID > 0 then
+            securecall(function()
+                -- Toggle: if already tracked, clear it
+                if self:IsSuperTracked() then
+                    C_SuperTrack.ClearAllSuperTracked()
+                    PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_OFF)
+                else
+                    C_SuperTrack.SetSuperTrackedMapPin(
+                        Enum.SuperTrackingMapPinType.AreaPOI,
+                        areaPoiID
+                    )
+                    PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
                 end
-                if wp_mapid then break end
+            end)
+        else
+            -- Fallback: native waypoint for special pins without areaPoiID
+            local wp_mapid = self.sourceMapID or self:GetMap():GetMapID()
+            local wp_x = self.nativePinX
+            local wp_y = self.nativePinY
+
+            if self.waypoint then
+                wp_mapid = self.waypoint.zone or wp_mapid
+                wp_x = self.waypoint.x or wp_x
+                wp_y = self.waypoint.y or wp_y
             end
 
-            -- Fallback to waypoint or pin position
-            wp_mapid = wp_mapid or (self.waypoint and self.waypoint.zone) or uiMapID
-            wp_x = wp_x or (self.waypoint and self.waypoint.x) or self:GetPosition()
-            wp_y = wp_y or (self.waypoint and self.waypoint.y) or select(2, self:GetPosition())
-            wp_name = wp_name or (self.waypoint and self.waypoint.name) or self.name or _G.DELVE_LABEL
-
-            if useTomTom then
-                AddTomTomWaypoint(wp_mapid, wp_x, wp_y, wp_name)
-            else
+            if wp_x and wp_y then
                 AddNativeWaypoint(wp_mapid, wp_x, wp_y)
             end
         end
     end
 end
-
--- Hook Blizzard's native Delve pins on Zone maps for TomTom support
-local function PatchDelveEntrancePins()
-    if not WorldMapFrame or not WorldMapFrame:IsShown() then return end
-
-    for pin in WorldMapFrame:EnumeratePinsByTemplate("DelveEntrancePinTemplate") do
-        if not pin.IPA_CustomClick then
-            pin.IPA_CustomClick = true
-
-            pin.OnMouseClickAction = function(self, button)
-                local useTomTom = IPASettings and (IPASettings.options.useTomTomDelve == true) and TomTom
-
-                if button == "LeftButton" and useTomTom then
-                    local uiMapID = self:GetMap():GetMapID()
-                    local areaPoiID = self.poiInfo and self.poiInfo.areaPoiID
-                    local poiInfo = areaPoiID and C_AreaPoiInfo.GetAreaPOIInfo(uiMapID, areaPoiID)
-
-                    local wp_x, wp_y, wp_name
-                    if poiInfo then
-                        wp_x = poiInfo.position.x
-                        wp_y = poiInfo.position.y
-                        wp_name = poiInfo.name or _G.DELVE_LABEL
-                    else
-                        wp_x, wp_y = self:GetPosition()
-                        wp_name = self.name or _G.DELVE_LABEL
-                    end
-
-                    AddTomTomWaypoint(uiMapID, wp_x, wp_y, wp_name)
-                else
-                    SuperTrackablePinMixin.OnMouseClickAction(self, button)
-                end
-            end
-        end
-    end
-end
-
-hooksecurefunc(WorldMapFrame, "OnMapChanged", function()
-    C_Timer.After(0, PatchDelveEntrancePins)
-end)
-
-WorldMapFrame:HookScript("OnShow", function()
-    C_Timer.After(0, PatchDelveEntrancePins)
-end)

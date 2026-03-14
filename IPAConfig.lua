@@ -1,13 +1,14 @@
 local addonName, IPA = ...
 
 IPA.DefaultSettings = {
-  options = {
+    options = {
         showOwnPins = true,
-        useTomTom = false,
         showOwnDelvePins = true,
-        useTomTomDelve = false,
-  },
-  version = 5,
+        -- TomTom support disabled for now, re-enable when implemented
+        -- useTomTom = false,
+        -- useTomTomDelve = false,
+    },
+    version = 6,
 }
 
 local eventFrame = CreateFrame("FRAME")
@@ -17,11 +18,11 @@ local SettingsRegistered = false
 
 function CreateSettings()
     if SettingsRegistered then return end
-    
+
     IPASettings = IPASettings and IPASettings.options and IPASettings or IPA.DefaultSettings
 
     local categoryMain = Settings.RegisterVerticalLayoutCategory("Instance Portals |cff0080ffAdvanced|r")
-    
+
     local function OnSettingChanged(setting, value)
         local variable = setting:GetVariable()
         IPASettings["options"][variable] = value
@@ -53,6 +54,7 @@ function CreateSettings()
         Settings.CreateCheckbox(categoryMain, setting, tooltip)
     end
 
+    --[[ TomTom support - disabled for now
     if C_AddOns and C_AddOns.IsAddOnLoaded("TomTom") then
 
         -- useTomTom
@@ -82,9 +84,10 @@ function CreateSettings()
         end
 
     end
+    ]]
 
     Settings.RegisterAddOnCategory(categoryMain)
-    
+
     local categoryID = categoryMain.ID
 
     _G['SLASH_' .. addonName .. 'Options' .. 1] = '/ipa'
@@ -92,7 +95,7 @@ function CreateSettings()
     SlashCmdList[addonName .. 'Options'] = function(msg)
         Settings.OpenToCategory(categoryID)
     end
-    
+
     SettingsRegistered = true
 end
 
