@@ -1,9 +1,9 @@
 ## Interface: 120001, 120000, 110207
-## Version: 120000.01-Release
+## Version: @project-version@
 ## Author: fuba
 ## IconTexture: Interface\AddOns\InstancePortalsAdv\fubaLogo
 ## Title: Instance Portals |cff0080ffAdvanced|r
-## Notes: Displays Dungeon & Raid Portals on the Continent Map|n|nThis is an Advanced Version of "Instance Portals" by StevenTroughtonSmith but with more Features and WAY MORE accurate Dungeon & Raid Entrance Pins that comes directly from Blizzard!
+## Notes: Shows Dungeon, Raid & Delve pins on maps where Blizzard does not.
 ## SavedVariables: IPASettings
 
 ## X-Curse-Project-ID: 721768
