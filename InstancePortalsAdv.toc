@@ -1,5 +1,5 @@
 ## Interface: 120001, 120000, 110207
-## Version: @project-version@
+## Version: 120000.01-Release
 ## Author: fuba
 ## IconTexture: Interface\AddOns\InstancePortalsAdv\fubaLogo
 ## Title: Instance Portals |cff0080ffAdvanced|r
@@ -12,8 +12,9 @@
 ## Category-enUS: |cffff8000fuba
 ## Category-deDE: |cffff8000fuba
 
+IPAInstancePortalPinTemplate.xml
+IPADelveEntrancePinTemplate.xml
+
 IPACore.lua
 IPAConfig.lua
 IPASpecialPinDB.lua
-IPAInstancePortalPinTemplate.xml
-InstancePortalsAdv.xml

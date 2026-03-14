@@ -1,47 +1,63 @@
 local addonName, IPA = ...
 
-IPAInstancePortalMapDataProviderMixin = CreateFromMixins(MapCanvasDataProviderMixin);
+local refreshTimer
+
+IPAInstancePortalMapDataProviderMixin = CreateFromMixins(MapCanvasDataProviderMixin)
 
 function IPAInstancePortalMapDataProviderMixin:RemoveAllData()
-	self:GetMap():RemoveAllPinsByTemplate("IPAInstancePortalPinTemplate");
+	self:GetMap():RemoveAllPinsByTemplate("IPAInstancePortalPinTemplate")
 end
 
 function IPAInstancePortalMapDataProviderMixin:OnShow()
-	self:RegisterEvent("CVAR_UPDATE");
+	self:RegisterEvent("CVAR_UPDATE")
 end
 
 function IPAInstancePortalMapDataProviderMixin:OnHide()
-	self:UnregisterEvent("CVAR_UPDATE");
+	self:UnregisterEvent("CVAR_UPDATE")
 end
 
 function IPAInstancePortalMapDataProviderMixin:OnEvent(event, ...)
 	if event == "CVAR_UPDATE" then
 		local eventName, value = ...;
 		if eventName == "showDungeonEntrancesOnMap" then
-			self:RefreshAllData();
+			self:RefreshAllData()
 		end
 	end
 end
 
-function IPAInstancePortalMapDataProviderMixin:RefreshAllData(fromOnShow)
+local function DoRefresh(self)
 	self:RemoveAllData()
 
-	-- Check if dungeon entrances should be shown and if continent map pins are enabled
-	if not (C_CVar and C_CVar.GetCVarBool("showDungeonEntrancesOnMap")) then return end
-	if not (IPASettings and IPASettings.options.pinsOnContinentMap) then return end
+	local map = self:GetMap()
+    local uiMapID = map and map:GetMapID()
+    if not uiMapID then return end
+	
+	if IPA.mapBlacklist_Dungeon and IPA.mapBlacklist_Dungeon[uiMapID] then return end
 
-	local uiMapID = self:GetMap():GetMapID()
-	local mapInfo = C_Map.GetMapInfo(uiMapID)
-	if not (uiMapID and mapInfo and mapInfo.mapType == Enum.UIMapType.Continent) then return end
+    if not (C_CVar and C_CVar.GetCVarBool("showDungeonEntrancesOnMap")) then return end
 
-	local mapChildren = C_Map.GetMapChildrenInfo(uiMapID, Enum.UIMapType.Zone)
-	if not (type(mapChildren) == 'table' and #mapChildren > 0) then return end
+	local showPins = IPASettings and IPASettings.options and IPASettings.options.showOwnPins or false
+    if not showPins then return end
+
+    local mapInfo = C_Map.GetMapInfo(uiMapID)
+
+	local isContinent = mapInfo.mapType == Enum.UIMapType.Continent
+	local isZone = mapInfo.mapType == Enum.UIMapType.Zone
+	if not (isContinent or isZone) then return end
+
+    local mapChildren = C_Map.GetMapChildrenInfo(uiMapID, Enum.UIMapType.Zone) or {}
+	local specialPinsForMap = IPA.specialPin_Dungeon and IPA.specialPin_Dungeon[uiMapID]
+	if #mapChildren == 0 and not specialPinsForMap then return end
 
 	-- Function to create and add pins
 	local function CreatePin(info, waypoint)
 		local pin = self:GetMap():AcquirePin("IPAInstancePortalPinTemplate", info)
 		pin.dataProvider = self
 		pin:SetSuperTracked(false)
+
+		pin.journalInstanceID = info and info.journalInstanceID or 0
+		pin.description = info and info.description or ""
+		pin.isRaid = info and info.atlasName == "Raid" or false
 
 		if waypoint then
 			pin.waypoint = CreateVector2D(waypoint.wpx, waypoint.wpy)
@@ -58,39 +74,58 @@ function IPAInstancePortalMapDataProviderMixin:RefreshAllData(fromOnShow)
 		end
 	end
 
-	-- Process dungeon entrances for child maps
-	for _, childMapInfo in ipairs(mapChildren) do
-		for _, entrance in ipairs(C_EncounterJournal.GetDungeonEntrancesForMap(childMapInfo.mapID)) do
-			local override = false
-			if IPAUISpecialPinDB and IPAUISpecialPinDB[uiMapID] then
-				for _, specialPin in ipairs(IPAUISpecialPinDB[uiMapID]) do
-					if specialPin.journalInstanceID == entrance.journalInstanceID then
-						override = true
-						break
+	-- Process dungeon entrances for child maps (Continent only!)
+	if isContinent and #mapChildren > 0 then
+		local processedIDs = {}  -- track already created pins
+
+		for _, childMapInfo in ipairs(mapChildren) do
+			local mapID = childMapInfo.mapID
+			local dungeonEntrances = C_EncounterJournal.GetDungeonEntrancesForMap(mapID)
+			for _, entrance in ipairs(dungeonEntrances) do
+				-- Skip if already processed
+
+				if not processedIDs[entrance.journalInstanceID] then
+					processedIDs[entrance.journalInstanceID] = true
+
+					local override = false
+
+					if specialPinsForMap then
+						for _, specialPin in ipairs(specialPinsForMap) do
+							if specialPin.journalInstanceID == entrance.journalInstanceID then
+								override = true
+								break
+							end
+						end
+					end
+
+					if not override then
+						local pos_vector = CreateVector2D(entrance.position.x, entrance.position.y)
+						local continentID, worldPosition = C_Map.GetWorldPosFromMapPos(childMapInfo.mapID, pos_vector)
+						local _, mapPosition = C_Map.GetMapPosFromWorldPos(continentID, worldPosition, uiMapID)
+						if mapPosition then
+							local finalDesc = entrance.description
+							if not finalDesc or finalDesc == "" then
+								finalDesc = (entrance.atlasName == "Raid") and _G.LFG_TYPE_RAID or _G.LFG_TYPE_DUNGEON
+							end
+
+							local entranceInfo = {
+								position = CreateVector2D(mapPosition.x, mapPosition.y),
+								areaPoiID = entrance.areaPoiID,
+								name = entrance.name,
+								description = finalDesc,
+								journalInstanceID = entrance.journalInstanceID,
+								atlasName = entrance.atlasName,
+								isSpecialPin = false
+							}
+							CreatePin(entranceInfo)
+						end
 					end
 				end
-			end
-
-			if not override then
-				local pos_vector = CreateVector2D(entrance.position.x, entrance.position.y)
-				local _, worldPosition = C_Map.GetWorldPosFromMapPos(childMapInfo.mapID, pos_vector)
-				local _, mapPosition = C_Map.GetMapPosFromWorldPos(_, worldPosition)
-				local entranceInfo = {
-					position = CreateVector2D(mapPosition.x, mapPosition.y),
-					areaPoiID = entrance.areaPoiID,
-					name = entrance.name,
-					description = entrance.description,
-					journalInstanceID = entrance.journalInstanceID,
-					atlasName = entrance.atlasName
-				}
-				
-				CreatePin(entranceInfo)
 			end
 		end
 	end
 
 	-- Process special pins
-	local specialPinsForMap = IPAUISpecialPinDB[uiMapID]
 	if specialPinsForMap then
 		for _, specialPinData in ipairs(specialPinsForMap) do
 			local entranceInfo = {
@@ -98,20 +133,26 @@ function IPAInstancePortalMapDataProviderMixin:RefreshAllData(fromOnShow)
 				areaPoiID = 0,
 				journalInstanceID = specialPinData.journalInstanceID,
 				atlasName = specialPinData.atlasName or "Dungeon",
-				description = specialPinData.atlasName == "Raid" and LFG_TYPE_RAID or LFG_TYPE_DUNGEON,
+				description = specialPinData.atlasName == "Raid" and _G.LFG_TYPE_RAID or _G.LFG_TYPE_DUNGEON,
 				name = EJ_GetInstanceInfo(specialPinData.journalInstanceID) or "Waypoint"
 			}
 
 			if specialPinData.instanceZone and type(specialPinData.instanceZone) == "number" then
 				for _, entrance in ipairs(C_EncounterJournal.GetDungeonEntrancesForMap(specialPinData.instanceZone)) do
 					if entrance.journalInstanceID == specialPinData.journalInstanceID then
+						local finalDesc = entrance.description
+						if not finalDesc or finalDesc == "" then
+							finalDesc = (entrance.atlasName == "Raid") and _G.LFG_TYPE_RAID or _G.LFG_TYPE_DUNGEON
+						end
+
 						entranceInfo = {
 							position = entranceInfo.position,
 							areaPoiID = entrance.areaPoiID,
 							name = entrance.name,
-							description = entrance.description,
+							description = finalDesc,
 							journalInstanceID = entrance.journalInstanceID,
-							atlasName = entrance.atlasName
+							atlasName = entrance.atlasName,
+							isSpecialPin = true
 						}
 					end
 				end
@@ -120,6 +161,15 @@ function IPAInstancePortalMapDataProviderMixin:RefreshAllData(fromOnShow)
 			CreatePin(entranceInfo, specialPinData)
 		end
 	end
+end
+
+function IPAInstancePortalMapDataProviderMixin:RefreshAllData(fromOnShow)
+	-- prevent bouncing
+    if refreshTimer then refreshTimer:Cancel() end
+    refreshTimer = C_Timer.NewTimer(0, function()
+        refreshTimer = nil
+        xpcall(function() DoRefresh(self) end, geterrorhandler())
+    end)
 end
 
 -- local function for "Add Waypoints" with the feature to "force" Built-In Waypoint System, just set "useTomTom" to false or leave it blank
@@ -143,24 +193,44 @@ local function AddTomTomWaypoint(mapID, x, y, title)
 	end
 end
 
---[[ Pin ]]--
-IPAInstancePortalProviderPinMixin = BaseMapPoiPinMixin:CreateSubPin("PIN_FRAME_LEVEL_DUNGEON_ENTRANCE");
+-- Pin definition
+IPAInstancePortalProviderPinMixin = BaseMapPoiPinMixin:CreateSubPin("PIN_FRAME_LEVEL_DUNGEON_ENTRANCE")
+
+-- Pin Taint fixes
+function IPAInstancePortalProviderPinMixin:SetPassThroughButtons() end
+function IPAInstancePortalProviderPinMixin:UpdateMousePropagation() end
+function IPAInstancePortalProviderPinMixin:DoesMapTypeAllowSuperTrack() return true end
 
 function IPAInstancePortalProviderPinMixin:OnAcquired(dungeonEntranceInfo) -- override
-	BaseMapPoiPinMixin.OnAcquired(self, dungeonEntranceInfo);
+	BaseMapPoiPinMixin.OnAcquired(self, dungeonEntranceInfo)
+end
+
+-- secure EncounterJournal_OpenJournal and prevent open in combat
+local function SecureOpenEncounterJournal(journalInstanceID)
+
+    if InCombatLockdown() then
+        UIErrorsFrame:AddMessage("Cannot open Encounter Journal during combat.", 1, 0.2, 0.2)
+        return
+    end
+
+    C_Timer.After(0.01, function()
+		if not EncounterJournal then
+            EncounterJournal_LoadUI()
+        end
+
+		EncounterJournal_OpenJournal(nil, journalInstanceID)
+    end)
+
 end
 
 function IPAInstancePortalProviderPinMixin:OnMouseClickAction(button)
 	if not button then return end
 
-	local useWaypointsContinent = IPASettings and (IPASettings.options.useWaypointsContinent ~= false)
-	local useTomTomContinent = IPASettings and (IPASettings.options.useTomTomContinent == true) and (TomTom ~= nil)
-	IPA:DebugPrint("useTomTomContinent: " .. tostring(useTomTomContinent))
-	IPA:DebugPrint("OnMouseClickAction, button: " .. tostring(button))
+	local useTomTom = IPASettings and (IPASettings.options.useTomTom == true) and (TomTom ~= nil)
 
-	if button == "LeftButton" and useWaypointsContinent then
+	if button == "LeftButton" then
 		local _, areaPoiID = self:GetSuperTrackData()
-		if areaPoiID and areaPoiID > 0 and not useTomTomContinent then
+		if areaPoiID and (areaPoiID > 0) and (not useTomTom) then
 			if self:IsSuperTracked() then
 				C_SuperTrack.ClearAllSuperTracked()
 				PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_OFF)
@@ -195,7 +265,7 @@ function IPAInstancePortalProviderPinMixin:OnMouseClickAction(button)
 			wp_y = wp_y or (self.waypoint and self.waypoint.y) or select(2, self:GetPosition())
 			wp_name = wp_name or (self.waypoint and self.waypoint.name) or EJ_GetInstanceInfo(journalInstanceID) or self.name or "Waypoint"
 
-			if useTomTomContinent then
+			if useTomTom then
 				AddTomTomWaypoint(wp_mapid, wp_x, wp_y, wp_name)
 			else
 				AddNativeWaypoint(wp_mapid, wp_x, wp_y)
@@ -204,57 +274,75 @@ function IPAInstancePortalProviderPinMixin:OnMouseClickAction(button)
 
 	elseif button == "RightButton" then
 		local journalInstanceID = self.journalInstanceID or self.poiInfo.journalInstanceID
-		--print("journalInstanceID: " .. tostring(self.journalInstanceID))
 		IPA:DebugPrint("journalInstanceID: " .. tostring(journalInstanceID))
-		EncounterJournal_LoadUI()
-		EncounterJournal_OpenJournal(nil, journalInstanceID)
+
+		SecureOpenEncounterJournal(journalInstanceID)
 	end
 end
 
 
--- Waypoint Function for Blizzard Dungeon Entrance Pins
-local function WaypointDungeonEntrancePinMixin(self, button)
-	if not (self and button) then return end
+-- new method to hook map pins and hopefully is taint secure now!
+local function PatchDungeonEntrancePins()
 
-	local useWaypointsZone = IPASettings and (IPASettings.options.useWaypointsZone ~= false)
-	local useTomTomZone = IPASettings and (IPASettings.options.useTomTomZone == true) and (TomTom ~= nil)
-	IPA:DebugPrint("useTomTomZone: " .. tostring(useTomTomZone))
+    if not WorldMapFrame or not WorldMapFrame:IsShown() then
+        return
+    end
 
-	if button == "LeftButton" and useWaypointsZone then
-		if useTomTomZone then
-			local wp_mapid, wp_x, wp_y, wp_name
-			local uiMapID = self:GetMap():GetMapID()
-			local journalInstanceID = self.journalInstanceID
-			IPA:DebugPrint("journalInstanceID: " .. tostring(journalInstanceID))
+    for pin in WorldMapFrame:EnumeratePinsByTemplate("DungeonEntrancePinTemplate") do
 
-			-- Get the dungeon entrance info for the current map
-			for _, dungeonEntranceInfo in ipairs(C_EncounterJournal.GetDungeonEntrancesForMap(uiMapID)) do
-				if dungeonEntranceInfo.journalInstanceID == journalInstanceID then
-					wp_mapid = uiMapID
-					wp_x = dungeonEntranceInfo.position.x
-					wp_y = dungeonEntranceInfo.position.y
-					wp_name = dungeonEntranceInfo.name or "Waypoint"
-				end
-			end
+        if not pin.IPA_CustomClick then
+            pin.IPA_CustomClick = true
 
-			-- Fallback to pin's position if necessary
-			if not (wp_mapid and wp_x and wp_y and wp_name) then
-				IPA:DebugPrint("Waypoint Info is missing, using Pin as Source")
-				wp_mapid = uiMapID
-				wp_x, wp_y = self:GetPosition()
-				wp_name = self.name or "Waypoint"
-			end
+            pin.OnMouseClickAction = function(self, button)
 
-			AddTomTomWaypoint(wp_mapid, wp_x, wp_y, wp_name)
-		else
-			-- Use native tracking system
-			SuperTrackablePinMixin.OnMouseClickAction(self, button)
-		end
+                local useTomTom = IPASettings and (IPASettings.options.useTomTom == true) and (TomTom ~= nil)
 
-	elseif button == "RightButton" then
-		IPA:DebugPrint("journalInstanceID: " .. tostring(self.journalInstanceID))
-		EncounterJournal_LoadUI()
-		EncounterJournal_OpenJournal(nil, self.journalInstanceID)
-	end
+                if button == "LeftButton" then
+
+                    if useTomTom then
+
+                        local wp_mapid, wp_x, wp_y, wp_name
+                        local uiMapID = self:GetMap():GetMapID()
+                        local journalInstanceID = self.journalInstanceID
+
+                        for _, dungeonEntranceInfo in ipairs(C_EncounterJournal.GetDungeonEntrancesForMap(uiMapID)) do
+                            if dungeonEntranceInfo.journalInstanceID == journalInstanceID then
+                                wp_mapid = uiMapID
+                                wp_x = dungeonEntranceInfo.position.x
+                                wp_y = dungeonEntranceInfo.position.y
+                                wp_name = dungeonEntranceInfo.name or "Waypoint"
+                                break
+                            end
+                        end
+
+                        if not (wp_mapid and wp_x and wp_y and wp_name) then
+                            wp_mapid = uiMapID
+                            wp_x, wp_y = self:GetPosition()
+                            wp_name = self.name or "Waypoint"
+                        end
+
+                        AddTomTomWaypoint(wp_mapid, wp_x, wp_y, wp_name)
+
+                    else
+                        SuperTrackablePinMixin.OnMouseClickAction(self, button)
+                    end
+
+                elseif button == "RightButton" then
+                    SecureOpenEncounterJournal(self.journalInstanceID)
+                end
+
+            end
+
+        end
+
+    end
+
 end
-_G.DungeonEntrancePinMixin.OnMouseClickAction = WaypointDungeonEntrancePinMixin
+
+hooksecurefunc(WorldMapFrame, "OnMapChanged", function()
+    C_Timer.After(0, PatchDungeonEntrancePins)
+end)
+
+WorldMapFrame:HookScript("OnShow", function()
+    C_Timer.After(0, PatchDungeonEntrancePins)
+end)
