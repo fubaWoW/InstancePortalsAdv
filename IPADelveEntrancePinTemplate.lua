@@ -191,9 +191,7 @@ end
 IPADelveProviderPinMixin = CreateFromMixins(MapCanvasPinMixin)
 
 -- Override to prevent taint
-function IPADelveProviderPinMixin:CheckMouseButtonPassthrough(button) end
-function IPADelveProviderPinMixin:SetPassThroughButtons(...) end
-function IPADelveProviderPinMixin:UpdateMousePropagation() end
+function IPADelveProviderPinMixin:CheckMouseButtonPassthrough(...) return end
 
 function IPADelveProviderPinMixin:OnLoad()
     self.superTracked = false

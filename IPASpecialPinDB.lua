@@ -441,6 +441,22 @@ IPA.specialPin_Dungeon = {
 			instanceZone = 2393,				-- Silvermoon
 			atlasName = "Dungeon",
 		},
+		
+		{
+			journalInstanceID = 1320,		-- The Venomous Abyss
+			x = 0.6490,
+			y = 0.5900,
+			instanceZone = 2509,				-- Vaults of Atal'Utek
+			atlasName = "Raid",
+		},
+		
+		{
+			journalInstanceID = 1322,    -- Altar of Fangs
+			x = 0.6490,
+			y = 0.6900,
+			instanceZone = 2509,    -- Vaults of Atal'Utek
+			atlasName = "Dungeon",
+		},
 	},
 	
 	[2395]={ -- Eversong Woods (Midnight)
@@ -457,6 +473,26 @@ IPA.specialPin_Dungeon = {
 			x = 0.8188,
 			y = 0.6726,
 			instanceZone = 2437,    -- Zul'Aman
+			atlasName = "Dungeon",
+		},
+		
+	},
+	
+	
+	[2512]={ -- The Coiled Isle
+		{
+			journalInstanceID = 1320,		-- The Venomous Abyss
+			x = 0.3850,
+			y = 0.4000,
+			instanceZone = 2509,				-- Vaults of Atal'Utek
+			atlasName = "Raid",
+		},
+		
+		{
+			journalInstanceID = 1322,    -- Altar of Fangs
+			x = 0.3850,
+			y = 0.6000,
+			instanceZone = 2509,    -- Vaults of Atal'Utek
 			atlasName = "Dungeon",
 		},
 		

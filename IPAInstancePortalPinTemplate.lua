@@ -73,7 +73,7 @@ local function DoRefresh(self)
         local pin = self:GetMap():AcquirePin("IPAInstancePortalPinTemplate", info)
 		pin:UseFrameLevelType("PIN_FRAME_LEVEL_DUNGEON_ENTRANCE")
         pin.dataProvider = self
-		
+
         -- Store everything needed
         pin.journalInstanceID = info.journalInstanceID or 0
         pin.areaPoiID = info.areaPoiID or 0
@@ -233,9 +233,7 @@ end
 IPAInstancePortalProviderPinMixin = CreateFromMixins(MapCanvasPinMixin)
 
 -- Override to prevent taint
-function IPAInstancePortalProviderPinMixin:CheckMouseButtonPassthrough(button) end
-function IPAInstancePortalProviderPinMixin:SetPassThroughButtons(...) end
-function IPAInstancePortalProviderPinMixin:UpdateMousePropagation() end
+function IPAInstancePortalProviderPinMixin:CheckMouseButtonPassthrough(...) return end
 
 function IPAInstancePortalProviderPinMixin:OnLoad()
     self.superTracked = false
@@ -255,7 +253,7 @@ function IPAInstancePortalProviderPinMixin:OnAcquired(info)
     if info and info.position then
         self:SetPosition(info.position.x, info.position.y)
     end
-	
+
     -- Set scaling
     self:SetScalingLimits(1, 1, 1.2)
 end
@@ -300,23 +298,13 @@ function IPAInstancePortalProviderPinMixin:OnMouseLeave()
     GetAppropriateTooltip():Hide()
 end
 
--- Find matching native Blizzard DungeonEntrancePinTemplate on current map
-function IPAInstancePortalProviderPinMixin:FindNativePin()
-    for pin in WorldMapFrame:EnumeratePinsByTemplate("DungeonEntrancePinTemplate") do
-        if pin.journalInstanceID == self.journalInstanceID then
-            return pin
-        end
-    end
-    return nil
-end
-
 function IPAInstancePortalProviderPinMixin:OnMouseClickAction(button)
     if not button then return end
 
     if button == "LeftButton" then
 		local areaPoiID = self.areaPoiID
 
-		
+
 		if areaPoiID and areaPoiID > 0 then
 			securecall(function()
 				-- Toggle: if already tracked, clear it
