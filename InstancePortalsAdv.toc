@@ -6,6 +6,12 @@
 ## Notes: Shows Dungeon, Raid & Delve pins on maps where Blizzard does not.
 ## SavedVariables: IPASettings
 
+## X-Curse-Project-ID: 721768
+
+## X-Category: |cffff8000fuba
+## Category-enUS: |cffff8000fuba
+## Category-deDE: |cffff8000fuba
+
 Libs\LibStub\LibStub.lua
 Libs\HereBeDragons\HereBeDragons-2.0.lua
 Libs\HereBeDragons\HereBeDragons-Pins-2.0.lua
