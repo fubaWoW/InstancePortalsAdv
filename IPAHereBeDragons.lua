@@ -502,11 +502,11 @@ local function CreatePin(node)
         end
 
         if node.kind == "Dungeon" and node.journalInstanceID and node.journalInstanceID > 0 then
-            GameTooltip_AddInstructionLine(tooltip, "Right-Click: Open Encounter Journal", false)
+            GameTooltip_AddInstructionLine(tooltip, DUNGEON_POI_TOOLTIP_INSTRUCTION_LINE, false)
         end
 
         if node.areaPoiID and node.areaPoiID > 0 and IsSuperTracked(node.areaPoiID) then
-            GameTooltip_AddNormalLine(tooltip, "Currently tracked")
+            GameTooltip_AddNormalLine(tooltip, CONTENT_TRACKING_CHECKMARK_TOOLTIP_TITLE)
         end
 
         tooltip:Show()
@@ -533,6 +533,12 @@ local function CreatePin(node)
                         PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
                     end)
                 end
+				
+				if GameTooltip:IsOwned(self) then
+					GameTooltip:Hide()
+					self:GetScript("OnEnter")(self)
+				end
+				
             else
                 AddNativeWaypoint(node, node.sourceMapID)
             end
