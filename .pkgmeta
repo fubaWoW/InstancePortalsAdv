@@ -1,0 +1,17 @@
+ignore:
+  - README.md
+  - CHANGES.txt
+  - LICENSE.md
+  - preview.png
+  - .pkgmeta
+  - .github
+  - .gitignore
+
+externals:
+    Libs/LibStub:
+        url: https://repos.curseforge.com/wow/libstub/trunk
+        tag: latest
+
+    Libs/HereBeDragons:
+        url: https://repos.curseforge.com/wow/herebedragons/trunk
+        tag: latest

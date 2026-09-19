@@ -38,9 +38,6 @@ coreFrame:SetScript("OnEvent", function(self, event, ...)
             ReCreateDatabase()
         end
 
-        -- Register DataProviders
-        WorldMapFrame:AddDataProvider(CreateFromMixins(IPAInstancePortalMapDataProviderMixin))
-        WorldMapFrame:AddDataProvider(CreateFromMixins(IPADelveMapDataProviderMixin))
 
     end
 end)

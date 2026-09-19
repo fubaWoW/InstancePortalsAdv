@@ -8,7 +8,7 @@ IPA.DefaultSettings = {
         -- useTomTom = false,
         -- useTomTomDelve = false,
     },
-    version = 6,
+    version = 7,
 }
 
 local eventFrame = CreateFrame("FRAME")

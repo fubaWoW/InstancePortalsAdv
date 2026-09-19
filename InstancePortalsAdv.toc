@@ -1,4 +1,4 @@
-## Interface: 120100, 120007, 120000, 110207
+## Interface: 120100, 110207
 ## Version: @project-version@
 ## Author: fuba
 ## IconTexture: Interface\AddOns\InstancePortalsAdv\fubaLogo
@@ -6,15 +6,12 @@
 ## Notes: Shows Dungeon, Raid & Delve pins on maps where Blizzard does not.
 ## SavedVariables: IPASettings
 
-## X-Curse-Project-ID: 721768
+Libs\LibStub\LibStub.lua
+Libs\HereBeDragons\HereBeDragons-2.0.lua
+Libs\HereBeDragons\HereBeDragons-Pins-2.0.lua
+Libs\HereBeDragons\HereBeDragons-Migrate.lua
 
-## X-Category: |cffff8000fuba
-## Category-enUS: |cffff8000fuba
-## Category-deDE: |cffff8000fuba
-
-IPAInstancePortalPinTemplate.xml
-IPADelveEntrancePinTemplate.xml
-
+IPASpecialPinDB.lua
 IPACore.lua
 IPAConfig.lua
-IPASpecialPinDB.lua
+IPAHereBeDragons.lua
