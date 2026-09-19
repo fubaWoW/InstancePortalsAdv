@@ -606,12 +606,21 @@ local function RefreshWorldMap()
 end
 
 local function RefreshMinimap()
+    ClearMinimapPins()
+
+    local showMinimapPins = IPASettings
+        and IPASettings.options
+        and IPASettings.options.showMinimapPins
+
+    if not showMinimapPins then
+        return
+    end
+
     local mapID = C_Map.GetBestMapForUnit("player")
     if not mapID then
         return
     end
 
-    ClearMinimapPins()
     minimapNodes = BuildNodes(mapID)
 
     for _, node in pairs(minimapNodes) do

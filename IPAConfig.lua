@@ -4,11 +4,12 @@ IPA.DefaultSettings = {
     options = {
         showOwnPins = true,
         showOwnDelvePins = true,
+        showMinimapPins = true,
         -- TomTom support disabled for now, re-enable when implemented
         -- useTomTom = false,
         -- useTomTomDelve = false,
     },
-    version = 7,
+    version = 6,
 }
 
 local eventFrame = CreateFrame("FRAME")
@@ -35,6 +36,23 @@ function CreateSettings()
         local variableTbl = IPASettings["options"]
         local variableKey = "showOwnPins"
         local defaultValue = IPA.DefaultSettings["options"][variableKey]
+
+        local setting = Settings.RegisterAddOnSetting(categoryMain, addonName.."_"..variableKey, variableKey, variableTbl, Settings.VarType.Boolean, name, defaultValue)
+        Settings.SetOnValueChangedCallback(variableKey, OnSettingChanged)
+        Settings.CreateCheckbox(categoryMain, setting, tooltip)
+    end
+
+    -- showMinimapPins
+    do
+        local name = "Show Pins on Minimap (requires Reload)"
+        local tooltip = "Enable or Disable Instance Portals Advanced pins on the Minimap"
+        local variableTbl = IPASettings["options"]
+        local variableKey = "showMinimapPins"
+        local defaultValue = IPA.DefaultSettings["options"][variableKey]
+
+        if variableTbl[variableKey] == nil then
+            variableTbl[variableKey] = defaultValue
+        end
 
         local setting = Settings.RegisterAddOnSetting(categoryMain, addonName.."_"..variableKey, variableKey, variableTbl, Settings.VarType.Boolean, name, defaultValue)
         Settings.SetOnValueChangedCallback(variableKey, OnSettingChanged)
