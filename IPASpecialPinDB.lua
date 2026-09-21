@@ -42,6 +42,7 @@ IPA.specialPin_Delve = {
 	[2537]={ -- Quel'Thalas
 		{
 			areaPoiID = 8431,    -- Shadowguard Point
+			bountifulAreaPoiID = 8432,
 			x = 0.5050,
 			y = 0.2400,
 			instanceZone = 2405,    -- Voidstorm
@@ -50,6 +51,7 @@ IPA.specialPin_Delve = {
 		
 		{
 			areaPoiID = 8429,    -- Sunkiller Sanctum
+			bountifulAreaPoiID = 8430,
 			x = 0.5330,
 			y = 0.2400,
 			instanceZone = 2405,    -- Voidstorm
@@ -58,6 +60,7 @@ IPA.specialPin_Delve = {
 		
 		{
 			areaPoiID = 8435,    -- The Gulf of Memory
+			bountifulAreaPoiID = 8436,
 			x = 0.8000,
 			y = 0.1750,
 			instanceZone = 2413,    -- Harandar
@@ -66,11 +69,13 @@ IPA.specialPin_Delve = {
 		
 		{
 			areaPoiID = 8433,    -- The Grudge Pit
+			bountifulAreaPoiID = 8434,
 			x = 0.8450,
 			y = 0.1900,
 			instanceZone = 2413,    -- Harandar
 			atlasName = "delves-regular",
 		},
+		
 	},
 	
 
@@ -457,6 +462,14 @@ IPA.specialPin_Dungeon = {
 			instanceZone = 2509,    -- Vaults of Atal'Utek
 			atlasName = "Dungeon",
 		},
+		
+		{
+			journalInstanceID = 1317,    -- The Tidebound Grotto
+			x = 0.7637,
+			y = 0.7298,
+			instanceZone = 2512,    -- The Coiled Isles
+			atlasName = "Lairs",
+		},
 	},
 	
 	[2395]={ -- Eversong Woods (Midnight)
@@ -496,7 +509,14 @@ IPA.specialPin_Dungeon = {
 			atlasName = "Dungeon",
 		},
 		
-	},
-	
+		{
+			journalInstanceID = 1317,    -- Altar of Fangs
+			x = 0.3850,
+			y = 0.6000,
+			instanceZone = 2509,    -- Vaults of Atal'Utek
+			atlasName = "Dungeon",
+		},
+		
+	},	
 	
 }

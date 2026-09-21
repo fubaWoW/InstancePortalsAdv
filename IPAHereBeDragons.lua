@@ -66,16 +66,24 @@ local function AddNode(nodes, mapID, x, y, data)
 end
 
 local function BuildDungeonNodeFromEntrance(entrance, sourceMapID, x, y)
+    local areaPoiID = entrance.areaPoiID or 0
+    local poiInfo = nil
+
+    if areaPoiID > 0 then
+        poiInfo = C_AreaPoiInfo.GetAreaPOIInfo(sourceMapID, areaPoiID)
+    end
+
     return {
         kind = "Dungeon",
-        name = entrance.name or UNKNOWN,
-        description = GetFinalDescription(entrance.atlasName, entrance.description),
+        name = (poiInfo and poiInfo.name) or entrance.name or UNKNOWN,
+        description = (poiInfo and poiInfo.description) or GetFinalDescription(entrance.atlasName, entrance.description),
         journalInstanceID = entrance.journalInstanceID or 0,
-        areaPoiID = entrance.areaPoiID or 0,
-        atlasName = entrance.atlasName or "Dungeon",
+        areaPoiID = areaPoiID,
+        atlasName = entrance.atlasName or (poiInfo and poiInfo.atlasName) or "Dungeon",
         sourceMapID = sourceMapID,
         nativePinX = entrance.position and entrance.position.x,
         nativePinY = entrance.position and entrance.position.y,
+        poiInfo = poiInfo,
         isSpecialPin = false,
         x = x,
         y = y,
@@ -83,50 +91,58 @@ local function BuildDungeonNodeFromEntrance(entrance, sourceMapID, x, y)
 end
 
 local function AddSpecialDungeonPin(nodes, mapID, specialPin)
-    local info = {
-        kind = "Dungeon",
-        name = EJ_GetInstanceInfo(specialPin.journalInstanceID) or UNKNOWN,
-        description = specialPin.atlasName == "Raid" and _G.LFG_TYPE_RAID or _G.LFG_TYPE_DUNGEON,
-        journalInstanceID = specialPin.journalInstanceID or 0,
-        areaPoiID = 0,
-        atlasName = specialPin.atlasName or "Dungeon",
-        sourceMapID = specialPin.instanceZone,
-        nativePinX = nil,
-        nativePinY = nil,
-        isSpecialPin = true,
-        waypoint = nil,
-    }
+    if not specialPin.instanceZone or not specialPin.journalInstanceID then
+        return
+    end
 
-    if specialPin.instanceZone and specialPin.journalInstanceID then
-        local entrances = C_EncounterJournal.GetDungeonEntrancesForMap(specialPin.instanceZone) or {}
+    local entrances = C_EncounterJournal.GetDungeonEntrancesForMap(specialPin.instanceZone) or {}
 
-        for _, entrance in ipairs(entrances) do
-            if entrance.journalInstanceID == specialPin.journalInstanceID then
-                info.areaPoiID = entrance.areaPoiID or 0
-                info.name = entrance.name or info.name
-                info.description = GetFinalDescription(entrance.atlasName, entrance.description)
-                info.atlasName = entrance.atlasName or info.atlasName
+    for _, entrance in ipairs(entrances) do
+        if entrance.journalInstanceID == specialPin.journalInstanceID then
+            local node = BuildDungeonNodeFromEntrance(
+                entrance,
+                specialPin.instanceZone,
+                specialPin.x,
+                specialPin.y
+            )
 
-                if entrance.position then
-                    info.nativePinX = entrance.position.x
-                    info.nativePinY = entrance.position.y
-                end
+            node.isSpecialPin = true
+            node.x = specialPin.x
+            node.y = specialPin.y
+            node.sourceMapID = specialPin.instanceZone
 
-                break
+            -- Prefer Blizzard's native atlas. Use the special-pin database
+            -- value only when Blizzard does not provide one.
+            local atlasName = entrance.atlasName
+
+            if not atlasName or atlasName == "" then
+                atlasName = specialPin.atlasName
             end
+
+            if not atlasName or atlasName == "" then
+                atlasName = "Dungeon"
+            end
+
+            node.atlasName = atlasName
+
+            -- Keep the explicitly configured POI ID when present.
+            if specialPin.areaPoiID then
+                node.areaPoiID = specialPin.areaPoiID
+                node.poiInfo = C_AreaPoiInfo.GetAreaPOIInfo(
+                    specialPin.instanceZone,
+                    specialPin.areaPoiID
+                )
+
+                if node.poiInfo then
+                    node.name = node.poiInfo.name or node.name
+                    node.description = node.poiInfo.description or node.description
+                end
+            end
+
+            AddNode(nodes, mapID, specialPin.x, specialPin.y, node)
+            return
         end
     end
-
-    if specialPin.wpzone or specialPin.wpx or specialPin.wpy or specialPin.wpname then
-        info.waypoint = {
-            zone = specialPin.wpzone,
-            x = specialPin.wpx,
-            y = specialPin.wpy,
-            name = specialPin.wpname,
-        }
-    end
-
-    AddNode(nodes, mapID, specialPin.x, specialPin.y, info)
 end
 
 local function AddSpecialDelvePin(nodes, mapID, specialPin)
@@ -134,7 +150,13 @@ local function AddSpecialDelvePin(nodes, mapID, specialPin)
         return
     end
 
-    local poiInfo = C_AreaPoiInfo.GetAreaPOIInfo(specialPin.instanceZone, specialPin.areaPoiID)
+    local areaPoiID = specialPin.areaPoiID
+    local atlasName = specialPin.atlasName or "delves-regular"
+
+    -- Bountiful Delve pins are intentionally disabled.
+    -- Keep using the regular Delve POI for normal Delve pins.
+
+    local poiInfo = C_AreaPoiInfo.GetAreaPOIInfo(specialPin.instanceZone, areaPoiID)
     if not poiInfo then
         return
     end
@@ -143,11 +165,12 @@ local function AddSpecialDelvePin(nodes, mapID, specialPin)
         kind = "Delve",
         name = poiInfo.name or UNKNOWN,
         description = poiInfo.description or "",
-        areaPoiID = specialPin.areaPoiID,
-        atlasName = specialPin.atlasName or poiInfo.atlasName or "delves-regular",
+        areaPoiID = areaPoiID,
+        atlasName = atlasName,
         sourceMapID = specialPin.instanceZone,
         nativePinX = poiInfo.position and poiInfo.position.x,
         nativePinY = poiInfo.position and poiInfo.position.y,
+        poiInfo = poiInfo,
         isSpecialPin = true,
     })
 end
@@ -157,9 +180,9 @@ local function BuildDungeonNodes(mapID, mapInfo, nodes)
         return
     end
 
-    if not GetCVarBool("showDungeonEntrancesOnMap") then
-        return
-    end
+    -- if not GetCVarBool("showDungeonEntrancesOnMap") then
+        -- return
+    -- end
 
     if not IPASettings.options.showOwnPins then
         return
@@ -197,37 +220,40 @@ local function BuildDungeonNodes(mapID, mapInfo, nodes)
                         end
                     end
 
+                    -- Project normal Dungeon pins from their native zone
+                    -- position onto the continent map. If Blizzard already
+                    -- provides that Dungeon natively on the target map, do not
+                    -- create a duplicate. Special Dungeon pins remain handled
+                    -- separately below.
                     if not overridden and entrance.position then
-                        local pos = CreateVector2D(entrance.position.x, entrance.position.y)
-                        local continentID, worldPosition = C_Map.GetWorldPosFromMapPos(sourceMapID, pos)
-                        local _, mapPosition = C_Map.GetMapPosFromWorldPos(continentID, worldPosition, mapID)
+                        local nativeOnTargetMap = false
+                        local targetEntrances = C_EncounterJournal.GetDungeonEntrancesForMap(mapID) or {}
 
-                        if mapPosition then
-                            AddNode(nodes, mapID, mapPosition.x, mapPosition.y,
-                                BuildDungeonNodeFromEntrance(entrance, sourceMapID, mapPosition.x, mapPosition.y))
+                        for _, targetEntrance in ipairs(targetEntrances) do
+                            if targetEntrance.journalInstanceID == journalID then
+                                nativeOnTargetMap = true
+                                break
+                            end
+                        end
+
+                        if not nativeOnTargetMap then
+                            local pos = CreateVector2D(entrance.position.x, entrance.position.y)
+                            local continentID, worldPosition = C_Map.GetWorldPosFromMapPos(sourceMapID, pos)
+                            local _, mapPosition = C_Map.GetMapPosFromWorldPos(continentID, worldPosition, mapID)
+
+                            if mapPosition then
+                                AddNode(nodes, mapID, mapPosition.x, mapPosition.y,
+                                    BuildDungeonNodeFromEntrance(entrance, sourceMapID, mapPosition.x, mapPosition.y))
+                            end
                         end
                     end
                 end
             end
         end
     else
-        local entrances = C_EncounterJournal.GetDungeonEntrancesForMap(mapID) or {}
-        local specialPins = specialPinsForMap or {}
-
-        for _, entrance in ipairs(entrances) do
-            local overridden = false
-            for _, specialPin in ipairs(specialPins) do
-                if specialPin.journalInstanceID == entrance.journalInstanceID then
-                    overridden = true
-                    break
-                end
-            end
-
-            if not overridden and entrance.position then
-                AddNode(nodes, mapID, entrance.position.x, entrance.position.y,
-                    BuildDungeonNodeFromEntrance(entrance, mapID, entrance.position.x, entrance.position.y))
-            end
-        end
+        -- Native Dungeon entrances are already represented by Blizzard's
+        -- native data on the zone map. IPA must not create a duplicate here.
+        -- Special Dungeon pins are handled separately below.
     end
 
     if specialPinsForMap then
@@ -242,9 +268,9 @@ local function BuildDelveNodes(mapID, mapInfo, nodes)
         return
     end
 
-    if not GetCVarBool("showDelveEntrancesOnMap") then
-        return
-    end
+    -- if not GetCVarBool("showDelveEntrancesOnMap") then
+        -- return
+    -- end
 
     if not IPASettings.options.showOwnDelvePins then
         return
@@ -280,27 +306,50 @@ local function BuildDelveNodes(mapID, mapInfo, nodes)
                         end
                     end
 
+
+                    -- Project normal Delve pins from their native zone
+                    -- position onto the continent map. If Blizzard already
+                    -- provides that Delve natively on the target map, do not
+                    -- create a duplicate. Special Delve pins are handled
+                    -- separately below and remain unaffected.
                     if not overridden then
                         local poiInfo = C_AreaPoiInfo.GetAreaPOIInfo(sourceMapID, areaPoiID)
 
-                        if poiInfo and poiInfo.position then
-                            local continentID, worldPosition =
-                                C_Map.GetWorldPosFromMapPos(sourceMapID, poiInfo.position)
-                            local _, mapPosition =
-                                C_Map.GetMapPosFromWorldPos(continentID, worldPosition, mapID)
+                        -- Bountiful Delves are identified by their actual
+                        -- Delve POI atlas, not by specialPin_Delve.
+                        if poiInfo
+                            and poiInfo.atlasName ~= "delves-bountiful"
+                            and poiInfo.position then
+                            local nativeOnTargetMap = false
+                            local targetPOIs = C_AreaPoiInfo.GetDelvesForMap(mapID) or {}
 
-                            if mapPosition then
-                                AddNode(nodes, mapID, mapPosition.x, mapPosition.y, {
-                                    kind = "Delve",
-                                    name = poiInfo.name or UNKNOWN,
-                                    description = poiInfo.description or "",
-                                    areaPoiID = areaPoiID,
-                                    atlasName = poiInfo.atlasName or "delves-regular",
-                                    sourceMapID = sourceMapID,
-                                    nativePinX = poiInfo.position.x,
-                                    nativePinY = poiInfo.position.y,
-                                    isSpecialPin = false,
-                                })
+                            for _, targetAreaPoiID in ipairs(targetPOIs) do
+                                if targetAreaPoiID == areaPoiID then
+                                    nativeOnTargetMap = true
+                                    break
+                                end
+                            end
+
+                            if not nativeOnTargetMap then
+                                local continentID, worldPosition =
+                                    C_Map.GetWorldPosFromMapPos(sourceMapID, poiInfo.position)
+                                local _, mapPosition =
+                                    C_Map.GetMapPosFromWorldPos(continentID, worldPosition, mapID)
+
+                                if mapPosition then
+                                    AddNode(nodes, mapID, mapPosition.x, mapPosition.y, {
+                                        kind = "Delve",
+                                        name = poiInfo.name or UNKNOWN,
+                                        description = poiInfo.description or "",
+                                        areaPoiID = areaPoiID,
+                                        atlasName = poiInfo.atlasName or "delves-regular",
+                                        sourceMapID = sourceMapID,
+                                        nativePinX = poiInfo.position.x,
+                                        nativePinY = poiInfo.position.y,
+                                        poiInfo = poiInfo,
+                                        isSpecialPin = false,
+                                    })
+                                end
                             end
                         end
                     end
@@ -308,37 +357,9 @@ local function BuildDelveNodes(mapID, mapInfo, nodes)
             end
         end
     else
-        local areaPOIs = C_AreaPoiInfo.GetDelvesForMap(mapID) or {}
-
-        for _, areaPoiID in ipairs(areaPOIs) do
-            local overridden = false
-            if specialPinsForMap then
-                for _, specialPin in ipairs(specialPinsForMap) do
-                    if specialPin.areaPoiID == areaPoiID then
-                        overridden = true
-                        break
-                    end
-                end
-            end
-
-            if not overridden then
-                local poiInfo = C_AreaPoiInfo.GetAreaPOIInfo(mapID, areaPoiID)
-
-                if poiInfo and poiInfo.position then
-                    AddNode(nodes, mapID, poiInfo.position.x, poiInfo.position.y, {
-                        kind = "Delve",
-                        name = poiInfo.name or UNKNOWN,
-                        description = poiInfo.description or "",
-                        areaPoiID = areaPoiID,
-                        atlasName = poiInfo.atlasName or "delves-regular",
-                        sourceMapID = mapID,
-                        nativePinX = poiInfo.position.x,
-                        nativePinY = poiInfo.position.y,
-                        isSpecialPin = false,
-                    })
-                end
-            end
-        end
+        -- Native Delve POIs are already represented by Blizzard's native
+        -- data on the zone map. IPA must not create a duplicate here.
+        -- Special Delve pins are handled separately below.
     end
 
     if specialPinsForMap then
@@ -413,10 +434,13 @@ end
 
 local function SetTextureForNode(pin, node)
     local texture = pin.IPATexture
+
     if node.kind == "Delve" then
         texture:SetAtlas(node.atlasName or "delves-regular")
     elseif node.atlasName == "Raid" then
         texture:SetTexture(ICON_RAID)
+    elseif node.atlasName and node.atlasName ~= "" and node.atlasName ~= "Dungeon" then
+        texture:SetAtlas(node.atlasName)
     else
         texture:SetTexture(ICON_DUNGEON)
     end
@@ -492,28 +516,65 @@ local function CreatePin(node)
     pin.IPANodeX = node.x
     pin.IPANodeY = node.y
 
+    pin.HasDisplayName = function()
+        return node.name and node.name ~= ""
+    end
+
+    pin.GetDisplayName = function()
+        return node.name
+    end
+
     pin:SetScript("OnEnter", function(self)
         local tooltip = GameTooltip
         tooltip:SetOwner(self, "ANCHOR_RIGHT")
-        GameTooltip_SetTitle(tooltip, node.name or UNKNOWN)
 
-        if node.description and node.description ~= "" then
-            GameTooltip_AddNormalLine(tooltip, node.description)
+        local name = node.name
+        if not name or name == "" then
+            name = _G.DUNGEON_MAP_PIN_FALLBACK_NAME
         end
 
-        if node.kind == "Dungeon" and node.journalInstanceID and node.journalInstanceID > 0 then
-            GameTooltip_AddInstructionLine(tooltip, DUNGEON_POI_TOOLTIP_INSTRUCTION_LINE, false)
-        end
+        GameTooltip_SetTitle(tooltip, name)
 
-        if node.areaPoiID and node.areaPoiID > 0 and IsSuperTracked(node.areaPoiID) then
-            GameTooltip_AddNormalLine(tooltip, CONTENT_TRACKING_CHECKMARK_TOOLTIP_TITLE)
+        if node.kind == "Dungeon" then
+            -- Blizzard uses the same internal Dungeon node type for both
+            -- Dungeons and Raids. The atlas identifies Raid pins.
+            if node.atlasName == "Raid" then
+                GameTooltip_AddNormalLine(
+                    tooltip,
+                    _G.RAID
+                )
+            else
+                GameTooltip_AddNormalLine(
+                    tooltip,
+                    _G.DUNGEON_MAP_PIN_FALLBACK_NAME
+                )
+            end
+
+            GameTooltip_AddInstructionLine(
+                tooltip,
+                _G.DUNGEON_POI_TOOLTIP_INSTRUCTION_LINE,
+                false
+            )
+        elseif node.kind == "Delve" then
+            -- Delves use their actual POI description and never use the
+            -- Dungeon instruction line.
+            local description = node.description
+
+            if description and description ~= "" then
+                GameTooltip_AddNormalLine(tooltip, description)
+            end
         end
 
         tooltip:Show()
     end)
 
-    pin:SetScript("OnLeave", function()
+    pin:SetScript("OnLeave", function(self)
         GameTooltip:Hide()
+
+        local tooltip = GetAppropriateTooltip()
+        if tooltip and tooltip:GetOwner() == self then
+            tooltip:Hide()
+        end
     end)
 
     pin:SetScript("OnClick", function(self, button)
@@ -606,18 +667,14 @@ local function RefreshWorldMap()
 end
 
 local function RefreshMinimap()
-    ClearMinimapPins()
-
-    local showMinimapPins = IPASettings
-        and IPASettings.options
-        and IPASettings.options.showMinimapPins
-
-    if not showMinimapPins then
+    local mapID = C_Map.GetBestMapForUnit("player")
+    if not mapID then
         return
     end
 
-    local mapID = C_Map.GetBestMapForUnit("player")
-    if not mapID then
+    ClearMinimapPins()
+
+    if not (IPASettings and IPASettings.options and IPASettings.options.showOwnMinimapPins) then
         return
     end
 
@@ -674,7 +731,6 @@ eventFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 eventFrame:RegisterEvent("ZONE_CHANGED")
 eventFrame:RegisterEvent("ZONE_CHANGED_INDOORS")
 eventFrame:RegisterEvent("SUPER_TRACKING_CHANGED")
-eventFrame:RegisterEvent("CVAR_UPDATE")
 
 if WorldMapFrame then
     WorldMapFrame:HookScript("OnShow", function()
@@ -689,10 +745,6 @@ end
 eventFrame:SetScript("OnEvent", function(_, event, cvarName)
     if event == "SUPER_TRACKING_CHANGED" then
         UpdateTrackedPins()
-    elseif event == "CVAR_UPDATE" then
-        if cvarName == "showDungeonEntrancesOnMap" or cvarName == "showDelveEntrancesOnMap" then
-            C_Timer.After(0, RefreshAll)
-        end
     else
         C_Timer.After(0, RefreshAll)
     end
