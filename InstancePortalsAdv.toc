@@ -1,4 +1,4 @@
-## Interface: 120100, 110207
+## Interface: 120105, 120100, 110207
 ## Version: @project-version@
 ## Author: fuba
 ## IconTexture: Interface\AddOns\InstancePortalsAdv\fubaLogo
